@@ -1,9 +1,8 @@
 ;;;; Grupo 49: Illya Gerasymchuk (78134), Nuno Silva (78454), Jorge Heleno (79042) ;;;;
 ;;;; Tetris source file
 
-(defun try-tab(row col) (cond 
-                         ( (zerop row) '()) 
-                         (t (setf aux '()) (dotimes (n col)
-                                             (setf aux (append aux (list 0) )))
-                            (cons aux (try-tab (1- row) col)))))
+(defun cria-tabuleiro(&optional row &optional col) 
+  (if (null row) (setf row 18)) 
+  (if (null col) (setf col 19)) 
+  (make-array (cons row (list col))))
 
