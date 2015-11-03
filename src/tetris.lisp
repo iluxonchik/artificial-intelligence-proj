@@ -13,7 +13,7 @@
 
 
 ;;; Tabuleiro [2.1.2]
-(defun cria-tabuleiro (&optional (row 18) (col 19))
+(defun cria-tabuleiro (&optional (row 18) (col 10))
     (make-array (list row col)))
 
 (defun tabuleiro-preenchido-p(tabuleiro rowNum colNum) 
@@ -26,7 +26,20 @@
 (defun tabuleiro-linha-completa-p (tab rowN &optional (colN 0)) 
 	(cond ((eq colN (nth 1 (array-dimensions tab))) T)
 	((not (tabuleiro-preenchido-p tab rowN colN)) nil)
-	(t (and T (tabuleiro-linha-completa-p tab rowN (1+ colN))))))	
+	(t (and T (tabuleiro-linha-completa-p tab rowN (1+ colN))))))
+
+(defun tabuleiro-preenche!(tab rowN colN) 
+	(if 
+	(and (< rowN (first (array-dimensions tab)))
+	(< colN (nth 1 (array-dimensions tab))))
+	(setf (aref tab rowN colN) T)))
+
+(defun tabuleiro-topo-preenchido-p(tab &optional (colN 0)) 
+	(cond
+	((eq colN (nth 1 (array-dimensions tab))) T)
+	((not (tabuleiro-preenchido-p tab (1- (first (array-dimensions tab))) colN)) nil)
+	(t (and T (tabuleiro-topo-preenchido-p tab (1+ colN))))))
+	
 
 ;;; Estado [2.1.3]
 (defstruct estado
