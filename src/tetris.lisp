@@ -16,6 +16,17 @@
 (defun cria-tabuleiro (&optional (row 18) (col 19))
     (make-array (list row col)))
 
+(defun tabuleiro-preenchido-p(tabuleiro rowNum colNum) 
+	(if (null (aref tabuleiro rowNum colNum)) nil T))
+	
+(defun tabuleiro-altura-coluna (tab colN &optional (rowN 0)) 
+	(cond ((or (eq rowN (first (array-dimensions tab))) (not (tabuleiro-preenchido-p tab rowN colN)) ) 0)
+	(t (1+ (tabuleiro-altura-coluna tab colN (1+ rowN))))))
+	
+(defun tabuleiro-linha-completa-p (tab rowN &optional (colN 0)) 
+	(cond ((eq colN (nth 1 (array-dimensions tab))) T)
+	((not (tabuleiro-preenchido-p tab rowN colN)) nil)
+	(t (and T (tabuleiro-linha-completa-p tab rowN (1+ colN))))))	
 
 ;;; Estado [2.1.3]
 (defstruct estado
@@ -32,3 +43,12 @@
 
 (defun estado-final-p (state)
     (or (tabuleiro-topo-preenchido-p (estado-Tabuleiro state)) (null (estado-pecas-por-colocar state))))
+	
+	
+ 
+
+	
+	
+
+													  
+												  
