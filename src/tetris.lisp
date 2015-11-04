@@ -57,3 +57,16 @@
 (defmethod accoes (state) t)
 (defmethod resultado (state action) t)
 (defmethod custo-caminho (state) t)
+
+
+(defun generate-piece-actions (piece)
+    "Given a piece configuration generates a list of valid actions
+     for that piece"
+    (let (   ; num columns the piece spans
+             (piece-columns (nth 1 (array-dimensions piece)))
+             (table-columns 10)
+             (actions (list))
+         )
+         (dotimes (column (+ 1 (- table-columns piece-columns)))
+             (setf actions (append actions (list(cria-accao column piece)))))
+          actions))
