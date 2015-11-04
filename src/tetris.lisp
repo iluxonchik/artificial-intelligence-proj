@@ -47,5 +47,5 @@
 ;;; Method definitions for "problema"
 (defmethod solucao (solution) t)
 (defmethod accoes (state) t)
-(defmethod result (state action) t)
+(defmethod resultado (state action) t)
 (defmethod custo-caminho (state) t)
