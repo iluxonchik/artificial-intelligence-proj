@@ -5,6 +5,9 @@
 (defun cria-accao (leftmost-col piece)
     (cons leftmost-col piece))
 
+(defun copia-tabuleiro (tab)
+    (copy-array tab))
+
 (defun accao-coluna (action) 
     (car action))
 
@@ -56,3 +59,11 @@
 
 (defun estado-final-p (state)
     (or (tabuleiro-topo-preenchido-p (estado-Tabuleiro state)) (null (estado-pecas-por-colocar state))))
+
+
+;;; Utils
+(defun copy-array (arr)
+    "Given an array, returns a copy of it"
+    (let ((dims (array-dimensions arr)))
+        (adjust-array
+            (make-array dims :displaced-to arr) dims)))
