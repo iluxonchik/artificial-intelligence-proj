@@ -54,7 +54,58 @@
 
 ;;; Method definitions for "problema"
 (defmethod solucao (solution) t)
-(defmethod accoes (state) t)
+
+(defmethod accoes (state) 
+    (let* (
+        (actions (list)) ; stores the resulting list of actions
+        
+        (add-piece-i-actions #'(lambda () 
+            (setf actions (append actions (generate-piece-actions peca-i0)))
+            (setf actions (append actions (generate-piece-actions peca-i1)))))
+
+        (add-piece-l-actions #'(lambda () 
+            (setf actions (append actions (generate-piece-actions peca-l0)))
+            (setf actions (append actions (generate-piece-actions peca-l1)))
+            (setf actions (append actions (generate-piece-actions peca-l2)))
+            (setf actions (append actions (generate-piece-actions peca-l3)))))
+
+        (add-piece-j-actions #'(lambda () 
+            (setf actions (append actions (generate-piece-actions peca-j0)))
+            (setf actions (append actions (generate-piece-actions peca-j1)))
+            (setf actions (append actions (generate-piece-actions peca-j2)))
+            (setf actions (append actions (generate-piece-actions peca-j3)))))
+
+        (add-piece-o-actions #'(lambda () 
+            (setf actions (append actions (generate-piece-actions peca-o0)))))
+
+        (add-piece-s-actions #'(lambda () 
+            (setf actions (append actions (generate-piece-actions peca-s0)))
+            (setf actions (append actions (generate-piece-actions peca-s1)))))
+
+        (add-piece-z-actions #'(lambda () 
+            (setf actions (append actions (generate-piece-actions peca-z0)))
+            (setf actions (append actions (generate-piece-actions peca-z1)))))
+
+        (add-piece-t-actions #'(lambda () 
+            (setf actions (append actions (generate-piece-actions peca-t0)))
+            (setf actions (append actions (generate-piece-actions peca-t1)))
+            (setf actions (append actions (generate-piece-actions peca-t2)))
+            (setf actions (append actions (generate-piece-actions peca-t3))))))
+        
+        ;; Go through the list of "pieces to be placed" and append the
+        ;; available actions for each one of them
+        (dolist (piece (estado-pecas-por-colocar state)) 
+            (cond
+
+                ((equalp piece piece-i) (funcall add-piece-i-actions))
+                ((equalp piece piece-j) (funcall add-piece-j-actions))
+                ((equalp piece piece-l) (funcall add-piece-l-actions))
+                ((equalp piece piece-o) (funcall add-piece-o-actions))
+                ((equalp piece piece-s) (funcall add-piece-s-actions))
+                ((equalp piece piece-z) (funcall add-piece-z-actions))
+                ((equalp piece piece-t) (funcall add-piece-t-actions))))
+            actions))
+
 (defmethod resultado (state action) t)
 (defmethod custo-caminho (state) t)
 
