@@ -39,13 +39,13 @@
     estado-inicial)
 
 ;;; Abstact operations on "problema"
-(defgeneric solucao (problem solution))
-(defgeneric accoes (problem state))
-(defgeneric result (problem state action))
-(defgeneric custo-caminho (problem state))
+(defgeneric solucao (solution))
+(defgeneric accoes (state))
+(defgeneric result (state action))
+(defgeneric custo-caminho (state))
 
 ;;; Method definitions for "problema"
-(defmethod solucao ((problem problema) solution) t)
-(defmethod accoes ((problem problema) state) t)
-(defmethod result ((problem problema) state action) t)
-(defmethod custo-caminho ((problem problema) state) t)
+(defmethod solucao (solution) t)
+(defmethod accoes (state) t)
+(defmethod result (state action) t)
+(defmethod custo-caminho (state) t)
