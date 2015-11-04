@@ -32,3 +32,20 @@
 
 (defun estado-final-p (state)
     (or (tabuleiro-topo-preenchido-p (estado-Tabuleiro state)) (null (estado-pecas-por-colocar state))))
+
+
+;;; Problema [2.1.4]
+(defstruct problema
+    estado-inicial)
+
+;;; Abstact operations on "problema"
+(defgeneric solucao (solution))
+(defgeneric accoes (state))
+(defgeneric result (state action))
+(defgeneric custo-caminho (state))
+
+;;; Method definitions for "problema"
+(defmethod solucao (solution) t)
+(defmethod accoes (state) t)
+(defmethod result (state action) t)
+(defmethod custo-caminho (state) t)
