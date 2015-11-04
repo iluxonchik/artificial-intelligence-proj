@@ -1,6 +1,14 @@
 ;;;; Grupo 49: Illya Gerasymchuk (78134), Nuno Silva (78454), Jorge Heleno (79042) ;;;;
 ;;;; Tetris source file
 
+(defconstant piece-i 'i)
+(defconstant piece-j 'j)
+(defconstant piece-l 'l)
+(defconstant piece-o 'o)
+(defconstant piece-s 's)
+(defconstant piece-z 'z)
+(defconstant piece-t 't)
+
 ;;; Acao [2.2.1]
 (defun cria-accao (leftmost-col piece)
     (cons leftmost-col piece))
