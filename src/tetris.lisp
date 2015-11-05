@@ -27,7 +27,7 @@
 	(t (1+ (tabuleiro-altura-coluna tab colN (1+ rowN))))))
 	
 (defun tabuleiro-linha-completa-p (tab rowN &optional (colN 0)) 
-	(cond ((equlp colN (nth 1 (array-dimensions tab))) T)
+	(cond ((and (equlp colN (nth 1 (array-dimensions tab))) (tabuleiro-preenchido-p rowN colN) ) T) ; colN == 10?
 	((not (tabuleiro-preenchido-p tab rowN colN)) nil)
 	(t (and T (tabuleiro-linha-completa-p tab rowN (1+ colN))))))
 
@@ -43,6 +43,35 @@
 	((not (tabuleiro-preenchido-p tab (1- (first (array-dimensions tab))) colN)) nil)
 	(t (and T (tabuleiro-topo-preenchido-p tab (1+ colN))))))
 	
+(defun tabuleiro-remove-linha!(tab rowN)
+    (let ((col-size (tabuleiro-col-size tab))
+          (row-size (tabuleiro-row-size tab))
+          (upper-rowN (+ rowN 1))
+         )
+        (cond
+            ((= upper-rowN col-size)
+            ; put an empty line in the top row
+                (dotimes (i col-size) (setf (aref tab rowN i) nil) )
+            )
+            ((< upper-rowN col-size)
+                (progn
+                    ; move the row rowN+1 to rowN
+                    (dotimes (i col-size) (setf (aref tab rowN i) (aref tab upper-rowN i) ) )
+                    (tabuleiro-remove-linha! tab (+ rowN 1))
+                )
+            )
+            (t nil)
+        )
+    )
+)
+
+(defun tabuleiro-col-size(tab)
+    (nth 1 (array-dimensions tab))
+)
+
+(defun tabuleiro-row-size(tab)
+    (nth 0 (array-dimensions tab))
+)
 
 ;;; Estado [2.1.3]
 (defstruct estado
