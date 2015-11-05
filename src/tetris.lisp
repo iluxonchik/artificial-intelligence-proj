@@ -22,14 +22,46 @@
 (defun tabuleiro-preenchido-p(tab rowNum colNum) 
 	(if (null (aref tab rowNum colNum)) nil T))
 	
-(defun tabuleiro-altura-coluna (tab colN &optional (rowN 0)) 
-	(cond ((or (equalp rowN (first (array-dimensions tab))) (not (tabuleiro-preenchido-p tab rowN colN)) ) 0)
-	(t (1+ (tabuleiro-altura-coluna tab colN (1+ rowN))))))
+(defun tabuleiro-altura-coluna(tab colN)  
+	(if (< colN (nth 1 (array-dimensions tab )))
+		(let ((X (- (first (array-dimensions tab)) 1))) 
+			(while (>= X 0) 
+				(cond   
+					((tabuleiro-preenchido-p tab x colN)
+						(return x)
+					)                                  
+					((= x 0) 
+						(return 0)
+					)
+					(t 
+						(setf x (1- x))
+					)
+				)
+			)
+		)
+	)
+)
 	
-(defun tabuleiro-linha-completa-p (tab rowN &optional (colN 0)) 
-	(cond ((and (equlp colN (nth 1 (array-dimensions tab))) (tabuleiro-preenchido-p rowN colN) ) T) ; colN == 10?
-	((not (tabuleiro-preenchido-p tab rowN colN)) nil)
-	(t (and T (tabuleiro-linha-completa-p tab rowN (1+ colN))))))
+(defun tabuleiro-linha-completa-p(tab rowN) 
+	(if (and (< rowN (first (array-dimensions tab))) (>= rowN 0))
+		(let ((x (- (nth 1 (array-dimensions tab)) 1)))
+			(while (>= x 0)
+				(cond 
+					((not (tabuleiro-preenchido-p tab rowN x))
+						(return nil)
+                    )
+					(
+					(= x 0) (return T)
+                    )
+                    (t 
+						(setf x (1- x))
+                    )
+				)
+			)
+		)
+	)
+)	
+	
 
 (defun tabuleiro-preenche!(tab rowN colN) 
 	(if 
@@ -37,11 +69,12 @@
 	(< colN (nth 1 (array-dimensions tab))))
 	(setf (aref tab rowN colN) T)))
 
-(defun tabuleiro-topo-preenchido-p(tab &optional (colN 0)) 
-	(cond
-	((equalp colN (nth 1 (array-dimensions tab))) T)
-	((not (tabuleiro-preenchido-p tab (1- (first (array-dimensions tab))) colN)) nil)
-	(t (and T (tabuleiro-topo-preenchido-p tab (1+ colN))))))
+(defun tabuleiro-topo-preenchido-p(tab) 
+	(if (tab-line tab (- (first (array-dimensions tab)) 1))
+		T 
+		nil
+	)
+)
 	
 (defun tabuleiro-remove-linha!(tab rowN)
     (let ((col-size (tabuleiro-col-size tab))
