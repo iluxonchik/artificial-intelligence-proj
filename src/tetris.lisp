@@ -87,11 +87,9 @@
                 (dotimes (i col-size) (setf (aref tab rowN i) nil) )
             )
             ((< upper-rowN col-size)
-                (progn
-                    ; move the row rowN+1 to rowN
-                    (dotimes (i col-size) (setf (aref tab rowN i) (aref tab upper-rowN i) ) )
-                    (tabuleiro-remove-linha! tab (+ rowN 1))
-                )
+                ; move the row rowN+1 to rowN
+                (dotimes (i col-size) (setf (aref tab rowN i) (aref tab upper-rowN i) ) )
+                (tabuleiro-remove-linha! tab (+ rowN 1))
             )
             (t nil)
         )
@@ -104,6 +102,19 @@
 
 (defun tabuleiro-row-size(tab)
     (nth 0 (array-dimensions tab))
+)
+
+
+(defun tabuleiros-iguais-p(tab1 tab2)
+    (equalp tab1 tab2)
+)
+
+(defun tabuleiro->array(tab)
+    (copy-array tab)
+)
+
+(defun array->tabuleiro(tab)
+    (copy-array tab)
 )
 
 ;;; Estado [2.1.3]
