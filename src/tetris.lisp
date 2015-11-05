@@ -5,9 +5,6 @@
 (defun cria-accao (leftmost-col piece)
     (cons leftmost-col piece))
 
-(defun copia-tabuleiro (tab)
-    (copy-array tab))
-
 (defun accao-coluna (action) 
     (car action))
 
@@ -18,6 +15,10 @@
 ;;; Tabuleiro [2.1.2]
 (defun cria-tabuleiro (&optional (row 18) (col 10))
     (make-array (list row col)))
+
+(defun copia-tabuleiro (tab)
+    (copy-array tab)
+)
 
 (defun tabuleiro-preenchido-p(tab rowNum colNum) 
 	(if (null (aref tab rowNum colNum)) nil T))
