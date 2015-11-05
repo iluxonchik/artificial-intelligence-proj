@@ -71,6 +71,11 @@
     (nth 0 (array-dimensions tab))
 )
 
+
+(defun tabuleiros-iguais-p(tab1 tab2)
+    (equalp tab1 tab2)
+)
+
 ;;; Estado [2.1.3]
 (defstruct estado
     pontos
