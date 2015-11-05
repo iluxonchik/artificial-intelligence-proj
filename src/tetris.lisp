@@ -54,11 +54,9 @@
                 (dotimes (i col-size) (setf (aref tab rowN i) nil) )
             )
             ((< upper-rowN col-size)
-                (progn
-                    ; move the row rowN+1 to rowN
-                    (dotimes (i col-size) (setf (aref tab rowN i) (aref tab upper-rowN i) ) )
-                    (tabuleiro-remove-linha! tab (+ rowN 1))
-                )
+                ; move the row rowN+1 to rowN
+                (dotimes (i col-size) (setf (aref tab rowN i) (aref tab upper-rowN i) ) )
+                (tabuleiro-remove-linha! tab (+ rowN 1))
             )
             (t nil)
         )
