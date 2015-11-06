@@ -33,17 +33,19 @@
 	
 (defun tabuleiro-altura-coluna(tab colN)  
 	(if (< colN (nth 1 (array-dimensions tab )))
-		(let ((X (- (first (array-dimensions tab)) 1))) 
-			(while (>= X 0) 
-				(cond   
-					((tabuleiro-preenchido-p tab x colN)
-						(return x)
-					)                                  
-					((= x 0) 
-						(return 0)
-					)
-					(t 
-						(setf x (1- x))
+		(let ((X (- (first (array-dimensions tab)) 1)))
+			(block loopBlock 
+				(while (>= X 0) 
+					(cond   
+						((tabuleiro-preenchido-p tab x colN)
+							(return-from loopBlock x)
+						)                                  
+						((= x 0) 
+							(return-from loopBlock x)
+						)
+						(t 
+							(setf x (1- x))
+						)
 					)
 				)
 			)
@@ -54,17 +56,19 @@
 (defun tabuleiro-linha-completa-p(tab rowN) 
 	(if (and (< rowN (first (array-dimensions tab))) (>= rowN 0))
 		(let ((x (- (nth 1 (array-dimensions tab)) 1)))
-			(while (>= x 0)
+			(block loopBlock
+				(while (>= x 0)
 				(cond 
-					((not (tabuleiro-preenchido-p tab rowN x))
-						(return nil)
-                    )
-					(
-					(= x 0) (return T)
-                    )
-                    (t 
+						((not (tabuleiro-preenchido-p tab rowN x))
+						(return-from loopBlock nil)
+                				)
+						(
+						(= x 0) (return-from loopBlock T)
+                    				)
+                 	  		 	(t 
 						(setf x (1- x))
-                    )
+                	    			)
+					)
 				)
 			)
 		)
@@ -79,7 +83,7 @@
 	(setf (aref tab rowN colN) T)))
 
 (defun tabuleiro-topo-preenchido-p(tab) 
-	(if (tab-line tab (- (first (array-dimensions tab)) 1))
+	(if (tabuleiro-linha-completa-p tab (- (first (array-dimensions tab)) 1))
 		T 
 		nil
 	)
@@ -87,7 +91,6 @@
 	
 (defun tabuleiro-remove-linha!(tab rowN)
     (let ((col-size (tabuleiro-col-size tab))
-          (row-size (tabuleiro-row-size tab))
           (upper-rowN (+ rowN 1))
          )
         (cond
@@ -125,6 +128,7 @@
 (defun array->tabuleiro(tab)
     (copy-array tab)
 )
+
 
 ;;; Estado [2.1.3]
 (defstruct estado
