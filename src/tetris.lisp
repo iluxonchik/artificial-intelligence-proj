@@ -25,25 +25,26 @@
     (make-array (list row col)))
 
 (defun copia-tabuleiro (tab)
-    (copy-array tab)
-)
+    (copy-array tab))
 
 (defun tabuleiro-preenchido-p(tab rowNum colNum) 
 	(if (null (aref tab rowNum colNum)) nil T))
 	
 (defun tabuleiro-altura-coluna(tab colN)  
 	(if (< colN (nth 1 (array-dimensions tab )))
-		(let ((X (- (first (array-dimensions tab)) 1))) 
-			(while (>= X 0) 
-				(cond   
-					((tabuleiro-preenchido-p tab x colN)
-						(return x)
-					)                                  
-					((= x 0) 
-						(return 0)
-					)
-					(t 
-						(setf x (1- x))
+		(let ((X (- (first (array-dimensions tab)) 1)))
+			(block loopBlock 
+				(while (>= X 0) 
+					(cond   
+						((tabuleiro-preenchido-p tab x colN)
+							(return-from loopBlock x)
+						)                                  
+						((= x 0) 
+							(return-from loopBlock x)
+						)
+						(t 
+							(setf x (1- x))
+						)
 					)
 				)
 			)
@@ -54,17 +55,19 @@
 (defun tabuleiro-linha-completa-p(tab rowN) 
 	(if (and (< rowN (first (array-dimensions tab))) (>= rowN 0))
 		(let ((x (- (nth 1 (array-dimensions tab)) 1)))
-			(while (>= x 0)
+			(block loopBlock
+				(while (>= x 0)
 				(cond 
-					((not (tabuleiro-preenchido-p tab rowN x))
-						(return nil)
-                    )
-					(
-					(= x 0) (return T)
-                    )
-                    (t 
+						((not (tabuleiro-preenchido-p tab rowN x))
+						(return-from loopBlock nil)
+                				)
+						(
+						(= x 0) (return-from loopBlock T)
+                    				)
+                 	  		 	(t 
 						(setf x (1- x))
-                    )
+                	    			)
+					)
 				)
 			)
 		)
@@ -79,7 +82,7 @@
 	(setf (aref tab rowN colN) T)))
 
 (defun tabuleiro-topo-preenchido-p(tab) 
-	(if (tab-line tab (- (first (array-dimensions tab)) 1))
+	(if (tabuleiro-linha-completa-p tab (- (first (array-dimensions tab)) 1))
 		T 
 		nil
 	)
@@ -87,7 +90,6 @@
 	
 (defun tabuleiro-remove-linha!(tab rowN)
     (let ((col-size (tabuleiro-col-size tab))
-          (row-size (tabuleiro-row-size tab))
           (upper-rowN (+ rowN 1))
          )
         (cond
@@ -126,6 +128,7 @@
     (copy-array tab)
 )
 
+
 ;;; Estado [2.1.3]
 (defstruct estado
     pontos
@@ -152,18 +155,14 @@
 
 ;;; Problema [2.1.4]
 (defstruct problema
-    estado-inicial)
+    estado-inicial
+    solucao
+    accoes
+    resultado
+    custo-caminho)
 
-;;; Abstact operations on "problema"
-(defgeneric solucao (solution))
-(defgeneric accoes (state))
-(defgeneric result (state action))
-(defgeneric custo-caminho (state))
-
-;;; Method definitions for "problema"
-(defmethod solucao (solution) t)
-
-(defmethod accoes (state) 
+;;; Funcoes Do Problema de Procure [2.2.1]
+(defun accoes (state) 
     (let* (
         (actions (list)) ; stores the resulting list of actions
         
@@ -214,8 +213,10 @@
                 ((equalp piece piece-t) (funcall add-piece-t-actions))))
             actions))
 
-(defmethod resultado (state action) t)
-(defmethod custo-caminho (state) t)
+;;; TODO:
+; (defun solucao (solution) t)
+; (defun resultado (state action) t)
+; (defun custo-caminho (state) t)
 
 
 (defun generate-piece-actions (piece)

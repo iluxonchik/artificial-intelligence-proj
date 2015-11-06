@@ -1,0 +1,4 @@
+# Generated On Compile
+*.lib
+*.fas
+*.fasm
