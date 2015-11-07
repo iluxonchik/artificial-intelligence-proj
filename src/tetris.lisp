@@ -25,8 +25,7 @@
     (make-array (list row col)))
 
 (defun copia-tabuleiro (tab)
-    (copy-array tab)
-)
+    (copy-array tab))
 
 (defun tabuleiro-preenchido-p(tab rowNum colNum) 
 	(if (null (aref tab rowNum colNum)) nil T))
@@ -156,18 +155,14 @@
 
 ;;; Problema [2.1.4]
 (defstruct problema
-    estado-inicial)
+    estado-inicial
+    solucao
+    accoes
+    resultado
+    custo-caminho)
 
-;;; Abstact operations on "problema"
-(defgeneric solucao (solution))
-(defgeneric accoes (state))
-(defgeneric result (state action))
-(defgeneric custo-caminho (state))
-
-;;; Method definitions for "problema"
-(defmethod solucao (solution) t)
-
-(defmethod accoes (state) 
+;;; Funcoes Do Problema de Procure [2.2.1]
+(defun accoes (state) 
     (let* (
         (actions (list)) ; stores the resulting list of actions
         
@@ -218,8 +213,10 @@
                 ((equalp piece piece-t) (funcall add-piece-t-actions))))
             actions))
 
-(defmethod resultado (state action) t)
-(defmethod custo-caminho (state) t)
+;;; TODO:
+; (defun solucao (solution) t)
+; (defun resultado (state action) t)
+; (defun custo-caminho (state) t)
 
 
 (defun generate-piece-actions (piece)
