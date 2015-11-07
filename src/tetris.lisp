@@ -37,7 +37,7 @@
 				(while (>= X 0) 
 					(cond   
 						((tabuleiro-preenchido-p tab x colN)
-							(return-from loopBlock x)
+							(return-from loopBlock (+ x 1))
 						)                                  
 						((= x 0) 
 							(return-from loopBlock x)
