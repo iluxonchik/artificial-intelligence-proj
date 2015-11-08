@@ -1,7 +1,7 @@
 ;;;; Grupo 49: Illya Gerasymchuk (78134), Nuno Silva (78454), Jorge Heleno (79042) ;;;;
 ;;;; Tetris source file
 
-
+(load "utils.fas")
 
 (defconstant piece-i 'i)
 (defconstant piece-j 'j)
@@ -36,7 +36,7 @@
 	(if (< colN (nth 1 (array-dimensions tab )))
 		(let ((X (- (first (array-dimensions tab)) 1)))
 			(block loopBlock 
-				(while (>= X 0) 
+				(loop while (>= X 0) do
 					(cond   
 						((tabuleiro-preenchido-p tab x colN)
 							(return-from loopBlock (+ x 1))
@@ -60,7 +60,7 @@
 	(if (and (< rowN (first (array-dimensions tab))) (>= rowN 0))
 		(let ((x (- (nth 1 (array-dimensions tab)) 1)))
 			(block loopBlock
-				(while (>= x 0)
+				(loop while (>= x 0) do
 				(cond 
 						((tabuleiro-preenchido-p tab rowN x)
 						(return-from loopBlock T)
@@ -81,7 +81,7 @@
 
 (defun tabuleiro-preenche!(tab rowN colN) 
 	(if 
-	(or (and (< rowN (first (array-dimensions tab)))
+	(and (and (< rowN (first (array-dimensions tab)))
 	(< colN (nth 1 (array-dimensions tab))))
 	(and (>= rowN 0) (>= colN 0))
 	)
