@@ -1,6 +1,8 @@
 ;;;; Grupo 49: Illya Gerasymchuk (78134), Nuno Silva (78454), Jorge Heleno (79042) ;;;;
 ;;;; Tetris source file
 
+
+
 (defconstant piece-i 'i)
 (defconstant piece-j 'j)
 (defconstant piece-l 'l)
@@ -51,6 +53,8 @@
 		)
 	)
 )
+
+
 	
 (defun tabuleiro-linha-completa-p(tab rowN) 
 	(if (and (< rowN (first (array-dimensions tab))) (>= rowN 0))
@@ -58,11 +62,11 @@
 			(block loopBlock
 				(while (>= x 0)
 				(cond 
-						((not (tabuleiro-preenchido-p tab rowN x))
-						(return-from loopBlock nil)
+						((tabuleiro-preenchido-p tab rowN x)
+						(return-from loopBlock T)
                 				)
 						(
-						(= x 0) (return-from loopBlock T)
+						(and (not (tabuleiro-preenchido-p tab rowN x)) (= x 0)) (return-from loopBlock nil)
                     				)
                  	  		 	(t 
 						(setf x (1- x))
@@ -77,8 +81,10 @@
 
 (defun tabuleiro-preenche!(tab rowN colN) 
 	(if 
-	(and (< rowN (first (array-dimensions tab)))
+	(or (and (< rowN (first (array-dimensions tab)))
 	(< colN (nth 1 (array-dimensions tab))))
+	(and (>= rowN 0) (>= colN 0))
+	)
 	(setf (aref tab rowN colN) T)))
 
 (defun tabuleiro-topo-preenchido-p(tab) 
