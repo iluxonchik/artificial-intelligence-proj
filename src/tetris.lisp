@@ -1,8 +1,10 @@
 ;;;; Grupo 49: Illya Gerasymchuk (78134), Nuno Silva (78454), Jorge Heleno (79042) ;;;;
 ;;;; Tetris source file
 
-(load "utils.fas")
+;;;(load "utils.fas")
 
+
+;;;pieces
 (defconstant piece-i 'i)
 (defconstant piece-j 'j)
 (defconstant piece-l 'l)
@@ -10,6 +12,16 @@
 (defconstant piece-s 's)
 (defconstant piece-z 'z)
 (defconstant piece-t 't)
+
+;;;piece values
+(defconstant piece-i-value 800)
+(defconstant piece-j-value 500)
+(defconstant piece-l-value 500)
+(defconstant piece-o-value 300)
+(defconstant piece-s-value 300)
+(defconstant piece-z-value 300)
+(defconstant piece-t-value 300)
+
 
 ;;; Acao [2.2.1]
 (defun cria-accao (leftmost-col piece)
@@ -139,11 +151,12 @@
 (defstruct estado
     pontos
     pecas-por-colocar   ; list ordered by exit order  | legal values: i,j,l,o,s,z,t
-    pecas-por-colocadas ; list ordered by most recent | legal values: i,j,l,o,s,z,t
+    pecas-colocadas     ; list ordered by most recent | legal values: i,j,l,o,s,z,t
     Tabuleiro)
 
 (defun copia-estado (state)
-    (copy-structure state))
+    (make-estado :pontos (estado-pontos state) :pecas-por-colocar (copy-list (estado-pecas-por-colocar state)) :pecas-colocadas (copy-list (estado-pecas-colocadas state)) :Tabuleiro (copia-tabuleiro (estado-Tabuleiro state)))
+)
 
 (defun estados-iguais-p (state1 state2)
     (equalp state1 state2))
@@ -236,3 +249,44 @@
          (dotimes (column (+ 1 (- table-columns piece-columns)))
              (setf actions (append actions (list(cria-accao column piece)))))
           actions))
+
+		  
+		  
+		  
+		  
+		  
+		  
+;;;Search functions
+
+(defun qualidade(state)
+	(setf (estado-pontos  state)(* (estado-pontos state) (- 1)))
+)
+
+
+(defun custo-oportunidade(state)
+	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state))
+)
+(defun calculate-points(l1)
+	(cond
+		((not(null (first l1)))
+			(+ (getPoints (first l1)) (calculate-points (rest l1))) 
+		)
+		(t 0)
+	)
+
+)
+
+(defun getPoints(piece)
+	(cond
+		((eq piece piece-i) piece-i-value)
+		((eq piece piece-j) piece-j-value)
+		((eq piece piece-l) piece-l-value)
+		((eq piece piece-o) piece-o-value)
+		((eq piece piece-s) piece-s-value)
+		((eq piece piece-z) piece-z-value)
+		((eq piece piece-t) piece-t-value)
+		(t 0)
+	
+	)
+
+)
