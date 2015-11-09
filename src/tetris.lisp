@@ -253,16 +253,16 @@
 	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state)))
 
 (defun resultado (state action)
-    let*(
-        ((state-copy (copia-estado state)))
-        (column (accao-coluna action))
-        (piece (accao-peca action))
-        (tab (estado-Tabuleiro state-copy))
-        (tab-arr (tabuleiro->array tab))
-        ;; TODO: run through the piece and determine the highest column
-        (column-height (tabuleiro-altura-coluna tab column))
-        (piece-lines (nth 0 (array-dimensions piece)))
-        (piece-columns (nth 1 (array-dimensions piece)))
+    (let* (
+            (state-copy (copia-estado state))
+            (column (accao-coluna action))
+            (piece (accao-peca action))
+            (tab (estado-Tabuleiro state-copy))
+            (tab-arr (tabuleiro->array tab))
+            ; TODO: run through the piece and determine the highest column
+            (column-height (tabuleiro-altura-coluna tab column))
+            (piece-lines (nth 0 (array-dimensions piece)))
+            (piece-columns (nth 1 (array-dimensions piece))))
 
         ;; TODO: put this in a separate helper function
         ;; Place piece on the tab
@@ -289,14 +289,13 @@
                 (return-from resultado state-copy)))
 
         ;; Remove the necessary lines
-        let(
-            (num-removed-lines 0)
+        (let((num-removed-lines 0))
 
             (loop for i from 0 to piece-lines do
-                (if (tabuleiro-linha-completa-p i)
+                (if (tabuleiro-linha-completa-p tab i)
                     (progn
                         (incf num-removed-lines)
-                        (setf tab (tabuleiro-remove-linha tab i)))))
+                        (setf tab (tabuleiro-remove-linha! tab i)))))
             
             ;; Update the score
             (setf (estado-pontos state-copy) 
