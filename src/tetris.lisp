@@ -1,8 +1,10 @@
 ;;;; Grupo 49: Illya Gerasymchuk (78134), Nuno Silva (78454), Jorge Heleno (79042) ;;;;
 ;;;; Tetris source file
 
-;;;(load "utils.fas")
-
+;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
+;;; Uncomment Line 2 AND comment line 1 (below) when using locally
+;;;(load "utils.fas")           ; line 1
+(load "../libs/utils.lisp")     ; line 2
 
 ;;;pieces
 (defconstant piece-i 'i)
@@ -24,6 +26,7 @@
 
 
 ;;; Acao [2.2.1]
+
 (defun cria-accao (leftmost-col piece)
     (cons leftmost-col piece))
 
@@ -35,6 +38,7 @@
 
 
 ;;; Tabuleiro [2.1.2]
+
 (defun cria-tabuleiro (&optional (row 18) (col 10))
     (make-array (list row col)))
 
@@ -148,6 +152,7 @@
 
 
 ;;; Estado [2.1.3]
+
 (defstruct estado
     pontos
     pecas-por-colocar   ; list ordered by exit order  | legal values: i,j,l,o,s,z,t
@@ -165,14 +170,8 @@
     (or (tabuleiro-topo-preenchido-p (estado-Tabuleiro state)) (null (estado-pecas-por-colocar state))))
 
 
-;;; Utils
-(defun copy-array (arr)
-    "Given an array, returns a copy of it"
-    (let ((dims (array-dimensions arr)))
-        (adjust-array
-            (make-array dims :displaced-to arr) dims)))
-
 ;;; Problema [2.1.4]
+
 (defstruct problema
     estado-inicial
     solucao
@@ -180,7 +179,8 @@
     resultado
     custo-caminho)
 
-;;; Funcoes Do Problema de Procure [2.2.1]
+;;; Funcoes Do Problema de Procura [2.2.1]
+
 (defun accoes (state) 
     (let* (
         (actions (list)) ; stores the resulting list of actions
@@ -229,14 +229,32 @@
                 ((equalp piece piece-o) (funcall add-piece-o-actions))
                 ((equalp piece piece-s) (funcall add-piece-s-actions))
                 ((equalp piece piece-z) (funcall add-piece-z-actions))
-                ((equalp piece piece-t) (funcall add-piece-t-actions))))
+                ((equalp piece piece-t) (funcall add-piece-t-actions))
+                (t nil)))
             actions))
 
-;;; TODO:
-; (defun solucao (solution) t)
-; (defun resultado (state action) t)
-; (defun custo-caminho (state) t)
+(defun solucao (state)
+    (and (null(estado-pecas-por-colocar state)) 
+            (not (tabuleiro-topo-preenchido-p (estado-Tabuleiro state)))))
 
+(defun qualidade(state)
+	(setf (estado-pontos  state)(* (estado-pontos state) (- 1)))
+)
+
+
+(defun custo-oportunidade(state)
+	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state))
+)
+
+;;; TODO:
+; (defun resultado (state action) t)
+
+;;; Utils
+(defun copy-array (arr)
+    "Given an array, returns a copy of it"
+    (let ((dims (array-dimensions arr)))
+        (adjust-array
+            (make-array dims :displaced-to arr) dims)))
 
 (defun generate-piece-actions (piece)
     "Given a piece configuration generates a list of valid actions
@@ -250,43 +268,19 @@
              (setf actions (append actions (list(cria-accao column piece)))))
           actions))
 
-		  
-		  
-		  
-		  
-		  
-		  
-;;;Search functions
-
-(defun qualidade(state)
-	(setf (estado-pontos  state)(* (estado-pontos state) (- 1)))
-)
-
-
-(defun custo-oportunidade(state)
-	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state))
-)
-(defun calculate-points(l1)
-	(cond
-		((not(null (first l1)))
-			(+ (getPoints (first l1)) (calculate-points (rest l1))) 
-		)
-		(t 0)
-	)
-
-)
-
 (defun getPoints(piece)
-	(cond
-		((eq piece piece-i) piece-i-value)
-		((eq piece piece-j) piece-j-value)
-		((eq piece piece-l) piece-l-value)
-		((eq piece piece-o) piece-o-value)
-		((eq piece piece-s) piece-s-value)
-		((eq piece piece-z) piece-z-value)
-		((eq piece piece-t) piece-t-value)
-		(t 0)
-	
-	)
+    (cond
+        ((eq piece piece-i) piece-i-value)
+        ((eq piece piece-j) piece-j-value)
+        ((eq piece piece-l) piece-l-value)
+        ((eq piece piece-o) piece-o-value)
+        ((eq piece piece-s) piece-s-value)
+        ((eq piece piece-z) piece-z-value)
+        ((eq piece piece-t) piece-t-value)
+    (t 0)))
 
-)
+(defun calculate-points(l1)
+    (cond
+        ((not(null (first l1)))
+            (+ (getPoints (first l1)) (calculate-points (rest l1))))
+        (t 0)))
