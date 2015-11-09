@@ -297,9 +297,6 @@
 
             (setf column-height (tabuleiro-altura-coluna tab (+ column max-line-val-index))))
 
-
-            
-
         ;; TODO: put this in a separate helper function
         ;; Place piece on the tab
         ;; NOTE: will override other pieces in case of conflict
