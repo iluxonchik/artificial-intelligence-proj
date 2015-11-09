@@ -3,8 +3,8 @@
 
 ;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
-(load "utils.fas")           ; line 1
-;;;(load "../libs/utils.lisp")     ; line 2
+;(load "utils.fas")           ; line 1
+(load "../libs/utils.lisp")     ; line 2
 
 ;;; Pieces
 (defconstant piece-i 'i)
@@ -252,17 +252,53 @@
 (defun custo-oportunidade(state)
 	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state)))
 
+
+(defun empty-lines-above-column (piece col max-line) 
+    (let ((counter 0))
+        (loop for i from 0 to max-line do
+            (cond
+                ((equalp nil (aref piece i col)) (setf counter (incf counter)))
+                (T (return-from empty-lines-above-column counter))
+            )
+        )
+
+))
+
 (defun resultado (state action)
     (let* (
-            (state-copy (copia-estado state))
-            (column (accao-coluna action))
-            (piece (accao-peca action))
-            (tab (estado-Tabuleiro state-copy))
-            (tab-arr (tabuleiro->array tab))
-            ; TODO: run through the piece and determine the highest column
-            (column-height (tabuleiro-altura-coluna tab column))
-            (piece-lines (nth 0 (array-dimensions piece)))
-            (piece-columns (nth 1 (array-dimensions piece))))
+        (state-copy (copia-estado state))
+        (column (accao-coluna action))
+        (piece (accao-peca action))
+        (tab (estado-Tabuleiro state-copy))
+        (tab-arr (tabuleiro->array tab))
+        ; TODO: run through the piece and determine the highest column
+        (column-height (tabuleiro-altura-coluna tab column))
+        (piece-lines (nth 0 (array-dimensions piece)))
+        (piece-columns (nth 1 (array-dimensions piece))))
+
+        ;; Decide the column-height to use
+        (let ( line-val (list) (max-line-val-index 0) (max-val 0))
+
+            (loop for i from 0 to piece-columns do 
+                (cond 
+                    ;; If entry is nil, set that line-val position to be column height - number of empty spaces above
+                    ((equalp nil (aref piece 0 i)) (setf line-val (append line-val (- (tabuleiro-altura-coluna tab i)  (empty-lines-above-column piece i piece-lines)))))
+                    (T (setf line-val (append line-val  (tabuleiro-altura-coluna tab i))))
+                )
+            )
+
+            ;; Find index with maximum value in the list. This + piece's leftmost column will be the column-height
+            (loop for i from 0 to (list-length line-val) do
+                (cond
+                    ((> (nth i line-val) max-val) (setf max-val (nth i line-val)) (setf max-line-val-index i))
+                    (T t)
+                )
+            )
+
+            (setf column-height (tabuleiro-altura-coluna tab (+ column max-line-val-index))))
+
+
+            
 
         ;; TODO: put this in a separate helper function
         ;; Place piece on the tab
