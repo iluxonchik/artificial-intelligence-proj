@@ -238,13 +238,40 @@
             (not (tabuleiro-topo-preenchido-p (estado-Tabuleiro state)))))
 
 (defun qualidade(state)
-	(setf (estado-pontos  state)(* (estado-pontos state) (- 1)))
-)
+	(setf (estado-pontos  state)(* (estado-pontos state) (- 1))))
 
 
 (defun custo-oportunidade(state)
-	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state))
-)
+	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state)))
+
+(defun resultado (state action)
+    let*(
+        ((state-copy (copia-estado state)))
+        (column (accao-coluna action))
+        (piece (accao-peca action))
+        (tab (estado-Tabuleiro state-copy))
+        (tab-arr (tabuleiro->array tab))
+        ;; TODO: run through the piece and determine the highest column
+        (column-height (tabuleiro-altura-coluna tab column))
+        (piece-lines (nth 0 (array-dimensions piece)))
+        (piece-columns (nth 1 (array-dimensions piece)))
+
+        ;; TODO: put this in a separate helper function
+        ;; Place piece on the tab
+        ;; NOTE: will override other pieces in case of conflict
+        (loop for i from 0 to piece-lines do
+            (loop for j from 0 to piece-columns do
+                (setf (aref tab-arr (+ column-height i) (+ column j)) (aref piece i j))))
+        
+        ;; TODO: remove piece from pecas-por-colocar
+        ;; TODO: add piece to pecas-colocadas 
+
+        (if (tabuleiro-topo-preenchido-p tab) 
+            (progn
+                (setf (estado-Tabuleiro state-copy) tab)
+                (return-from resultado state-copy)
+            )
+    )))
 
 ;;; TODO:
 ; (defun resultado (state action) t)
