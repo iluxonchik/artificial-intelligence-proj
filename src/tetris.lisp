@@ -119,32 +119,32 @@
 )
 	
 (defun tabuleiro-remove-linha!(tab rowN)
-    (let ((col-size (tabuleiro-col-size tab))
+    (let ((num-of-cols (tabuleiro-num-of-cols tab))
+          (num-of-rows (tabuleiro-num-of-rows tab))
           (upper-rowN (+ rowN 1))
          )
         (cond
-            ((= upper-rowN col-size)
-            ; put an empty line in the top row
-                (dotimes (i col-size) (setf (aref tab rowN i) nil) )
+            ((= upper-rowN num-of-rows)
+                ; put an empty line in the top row
+                (dotimes (i num-of-cols) (setf (aref tab rowN i) nil) )
             )
-            ((< upper-rowN col-size)
+            ((< upper-rowN num-of-rows)
                 ; move the row rowN+1 to rowN
-                (dotimes (i col-size) (setf (aref tab rowN i) (aref tab upper-rowN i) ) )
-                (tabuleiro-remove-linha! tab (+ rowN 1))
+                (dotimes (i num-of-cols) (setf (aref tab rowN i) (aref tab upper-rowN i) ) )
+                (tabuleiro-remove-linha! tab upper-rowN)
             )
             (t nil)
         )
     )
 )
 
-(defun tabuleiro-col-size(tab)
+(defun tabuleiro-num-of-cols(tab)
     (nth 1 (array-dimensions tab))
 )
 
-(defun tabuleiro-row-size(tab)
+(defun tabuleiro-num-of-rows(tab)
     (nth 0 (array-dimensions tab))
 )
-
 
 (defun tabuleiros-iguais-p(tab1 tab2)
     (equalp tab1 tab2)
