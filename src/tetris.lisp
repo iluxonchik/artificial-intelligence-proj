@@ -32,38 +32,6 @@
 (setf (gethash 3 *score*) 500)
 (setf (gethash 4 *score*) 800)
 
-(defparameter *piece* (make-hash-table :test #'equalp))
-(setf (gethash (make-array (list 4 1) :initial-element T) *piece*) piece-i)
-(setf (gethash (make-array (list 1 4) :initial-element T) *piece*) piece-i)
-
-(setf (gethash (make-array (list 3 2) :initial-contents '((T T)(T nil)(T nil))) *piece*) piece-l)
-(setf (gethash (make-array (list 2 3) :initial-contents '((T nil nil)(T T T))) *piece*) piece-l)
-(setf (gethash (make-array (list 3 2) :initial-contents '((nil T)(nil T)(T T))) *piece*) piece-l)
-(setf (gethash (make-array (list 2 3) :initial-contents '((T T T)(nil nil T))) *piece*) piece-l)
-
-(setf (gethash (make-array (list 3 2) :initial-contents '((T T)(nil T)(nil T))) *piece*) piece-j)
-(setf (gethash (make-array (list 2 3) :initial-contents '((T T T)(T il nil))) *piece*) piece-j)
-(setf (gethash (make-array (list 3 2) :initial-contents '((T nil)(T nil)(T T))) *piece*) piece-j)
-(setf (gethash (make-array (list 2 3) :initial-contents '((nil nil T)(T T T))) *piece*) piece-j)
-
-(setf (gethash (make-array (list 2 2) :initial-element T) *piece*) piece-o)
-
-(setf (gethash (make-array (list 2 3) :initial-contents '((T T nil)(nil T T))) *piece*) piece-s)
-(setf (gethash (make-array (list 3 2) :initial-contents '((nil T)(T T)(T nil))) *piece*) piece-s)
-
-(setf (gethash (make-array (list 2 3) :initial-contents '((nil T T)(T T nil))) *piece*) piece-z)
-(setf (gethash (make-array (list 3 2) :initial-contents '((T nil)(T T)(nil T))) *piece*) piece-z)
-
-(setf (gethash (make-array (list 2 3) :initial-contents '((T T T)(nil T nil))) *piece*) piece-t)
-(setf (gethash (make-array (list 3 2) :initial-contents '((T nil)(T T)(T nil))) *piece*) piece-t)
-(setf (gethash (make-array (list 2 3) :initial-contents '((nil T nil)(T T T))) *piece*) piece-t)
-(setf (gethash (make-array (list 3 2) :initial-contents '((nil T)(T T)(nil T))) *piece*) piece-t)
-
-
-
-
-
-
 ;;; Acao [2.2.1]
 
 (defun cria-accao (leftmost-col piece)
