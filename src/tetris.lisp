@@ -6,7 +6,7 @@
 ;;;(load "utils.fas")           ; line 1
 (load "../libs/utils.lisp")     ; line 2
 
-;;;pieces
+;;; Pieces
 (defconstant piece-i 'i)
 (defconstant piece-j 'j)
 (defconstant piece-l 'l)
@@ -15,7 +15,7 @@
 (defconstant piece-z 'z)
 (defconstant piece-t 't)
 
-;;;piece values
+;;; Piece values
 (defconstant piece-i-value 800)
 (defconstant piece-j-value 500)
 (defconstant piece-l-value 500)
@@ -23,6 +23,14 @@
 (defconstant piece-s-value 300)
 (defconstant piece-z-value 300)
 (defconstant piece-t-value 300)
+
+;;; Num-removed-lines-to-score hash table
+(defparameter *score* (make-hash-table))
+(setf (gethash *score* 0) 0)
+(setf (gethash *score* 1) 100)
+(setf (gethash *score* 2) 300)
+(setf (gethash *score* 3) 500)
+(setf (gethash *score* 4) 800)
 
 
 ;;; Acao [2.2.1]
@@ -263,6 +271,9 @@
             (loop for j from 0 to piece-columns do
                 (setf (aref tab-arr (+ column-height i) (+ column j)) (aref piece i j))))
         
+        ;; Update tab
+        (setf tab (array->tabuleiro tab-arr))
+
         ;; remove piece from pecas-por-colocar
         (setf (estado-pecas-por-colocar state-copy) 
             (remove piece (estado-pecas-por-colocar state-copy) :test #'equal))
@@ -271,12 +282,31 @@
         (setf (estado-pecas-colocadas state-copy) 
             (append (estado-pecas-colocadas state-copy) (list piece)))
 
+        ;; Top of tab is filled, return the resulting state
         (if (tabuleiro-topo-preenchido-p tab) 
             (progn
                 (setf (estado-Tabuleiro state-copy) tab)
-                (return-from resultado state-copy)
-            )
-    )))
+                (return-from resultado state-copy)))
+
+        ;; Remove the necessary lines
+        let(
+            (num-removed-lines 0)
+
+            (loop for i from 0 to piece-lines do
+                (if (tabuleiro-linha-completa-p i)
+                    (progn
+                        (incf num-removed-lines)
+                        (setf tab (tabuleiro-remove-linha tab i)))))
+            
+            ;; Update the score
+            (setf (estado-pontos state-copy) 
+                (+ (estado-pontos state-copy) (gethash *score* num-removed-lines))))
+
+            ;; Update the state
+            (setf (estado-Tabuleiro state-copy) tab)
+
+        state-copy ; return the updated state
+))
 
 ;;; TODO:
 ; (defun resultado (state action) t)
