@@ -180,7 +180,7 @@
     resultado
     custo-caminho)
 
-;;; Funcoes Do Problema de Procure [2.2.1]
+;;; Funcoes Do Problema de Procura [2.2.1]
 (defun accoes (state) 
     (let* (
         (actions (list)) ; stores the resulting list of actions
@@ -229,7 +229,8 @@
                 ((equalp piece piece-o) (funcall add-piece-o-actions))
                 ((equalp piece piece-s) (funcall add-piece-s-actions))
                 ((equalp piece piece-z) (funcall add-piece-z-actions))
-                ((equalp piece piece-t) (funcall add-piece-t-actions))))
+                ((equalp piece piece-t) (funcall add-piece-t-actions))
+                (t nil)))
             actions))
 
 ;;; TODO:
@@ -250,12 +251,6 @@
              (setf actions (append actions (list(cria-accao column piece)))))
           actions))
 
-		  
-		  
-		  
-		  
-		  
-		  
 ;;;Search functions
 
 (defun qualidade(state)
