@@ -4,7 +4,7 @@
 ;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
 ;(load "utils.fas")           ; line 1
-(load "../libs/utils.lisp")     ; line 2
+;(load "../libs/utils.lisp")     ; line 2
 
 ;;; Pieces
 (defconstant piece-i 'i)
@@ -57,23 +57,22 @@
 	(if (null (aref tab rowNum colNum)) nil T))
 	
 (defun tabuleiro-altura-coluna(tab colN)  
-	(if (< colN (nth 1 (array-dimensions tab )))
+	(if (< colN (nth 1 (array-dimensions tab)))
 		(let ((X (- (first (array-dimensions tab)) 1)))
-			(block loopBlock 
-				(loop while (>= X 0) do
-					(cond   
-						((tabuleiro-preenchido-p tab x colN)
-							(return-from loopBlock (+ x 1))
-						)                                  
-						((= x 0) 
-							(return-from loopBlock x)
-						)
-						(t 
-							(setf x (1- x))
-						)
+			(loop while (>= X 0) do
+				(cond   
+					((tabuleiro-preenchido-p tab x colN)
+						(return-from tabuleiro-altura-coluna (+ x 1))
+					)                                  
+					((= x 0) 
+						(return-from tabuleiro-altura-coluna x)
+					)
+					(t 
+						(setf x (1- x))
 					)
 				)
 			)
+			
 		)
 	)
 )
@@ -261,7 +260,7 @@
                 (T (return-from empty-lines-above-column counter))
             )
         )
-
+        counter
 ))
 
 (defun resultado (state action)
@@ -273,17 +272,16 @@
         (tab-arr (tabuleiro->array tab))
         ; TODO: run through the piece and determine the highest column
         (column-height (tabuleiro-altura-coluna tab column))
-        (piece-lines (nth 0 (array-dimensions piece)))
-        (piece-columns (nth 1 (array-dimensions piece))))
-
+        (piece-lines (decf (nth 0 (array-dimensions piece))))
+        (piece-columns (decf (nth 1 (array-dimensions piece)))))
         ;; Decide the column-height to use
-        (let ( line-val (list) (max-line-val-index 0) (max-val 0))
+        (let ( (line-val (list)) (max-line-val-index 0) (max-val 0))
 
             (loop for i from 0 to piece-columns do 
                 (cond 
                     ;; If entry is nil, set that line-val position to be column height - number of empty spaces above
-                    ((equalp nil (aref piece 0 i)) (setf line-val (append line-val (- (tabuleiro-altura-coluna tab i)  (empty-lines-above-column piece i piece-lines)))))
-                    (T (setf line-val (append line-val  (tabuleiro-altura-coluna tab i))))
+                    ((equalp nil (aref piece 0 i)) (setf line-val (append line-val (list (- (tabuleiro-altura-coluna tab i)  (empty-lines-above-column piece i piece-lines))))))
+                    (T (setf line-val (append line-val  (list (tabuleiro-altura-coluna tab i)))))
                 )
             )
 
@@ -375,3 +373,5 @@
         ((not(null (first l1)))
             (+ (getPoints (first l1)) (calculate-points (rest l1))))
         (t 0)))
+
+(load "../libs/utils.lisp")
