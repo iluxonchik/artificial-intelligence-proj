@@ -4,9 +4,9 @@
 ;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
 ;;;(load "utils.fas")           ; line 1
-(load "../libs/utils.lisp")     ; line 2
+;;;(load "../libs/utils.lisp")     ; line 2
 
-;;;pieces
+;;; Pieces
 (defconstant piece-i 'i)
 (defconstant piece-j 'j)
 (defconstant piece-l 'l)
@@ -15,7 +15,7 @@
 (defconstant piece-z 'z)
 (defconstant piece-t 't)
 
-;;;piece values
+;;; Piece values
 (defconstant piece-i-value 800)
 (defconstant piece-j-value 500)
 (defconstant piece-l-value 500)
@@ -24,6 +24,13 @@
 (defconstant piece-z-value 300)
 (defconstant piece-t-value 300)
 
+;;; Num-removed-lines-to-score hash table
+(defparameter *score* (make-hash-table))
+(setf (gethash 0 *score*) 0)
+(setf (gethash 1 *score*) 100)
+(setf (gethash 2 *score*) 300)
+(setf (gethash 3 *score*) 500)
+(setf (gethash 4 *score*) 800)
 
 ;;; Acao [2.2.1]
 
@@ -49,23 +56,22 @@
 	(if (null (aref tab rowNum colNum)) nil T))
 	
 (defun tabuleiro-altura-coluna(tab colN)  
-	(if (< colN (nth 1 (array-dimensions tab )))
+	(if (< colN (nth 1 (array-dimensions tab)))
 		(let ((X (- (first (array-dimensions tab)) 1)))
-			(block loopBlock 
-				(loop while (>= X 0) do
-					(cond   
-						((tabuleiro-preenchido-p tab x colN)
-							(return-from loopBlock (+ x 1))
-						)                                  
-						((= x 0) 
-							(return-from loopBlock x)
-						)
-						(t 
-							(setf x (1- x))
-						)
+			(loop while (>= X 0) do
+				(cond   
+					((tabuleiro-preenchido-p tab x colN)
+						(return-from tabuleiro-altura-coluna (+ x 1))
+					)                                  
+					((= x 0) 
+						(return-from tabuleiro-altura-coluna x)
+					)
+					(t 
+						(setf x (1- x))
 					)
 				)
 			)
+			
 		)
 	)
 )
@@ -73,26 +79,16 @@
 
 	
 (defun tabuleiro-linha-completa-p(tab rowN) 
-	(if (and (< rowN (first (array-dimensions tab))) (>= rowN 0))
-		(let ((x (- (nth 1 (array-dimensions tab)) 1)))
-			(block loopBlock
-				(loop while (>= x 0) do
-				(cond 
-						((tabuleiro-preenchido-p tab rowN x)
-						(return-from loopBlock T)
-                				)
-						(
-						(and (not (tabuleiro-preenchido-p tab rowN x)) (= x 0)) (return-from loopBlock nil)
-                    				)
-                 	  		 	(t 
-						(setf x (1- x))
-                	    			)
-					)
-				)
-			)
-		)
-	)
-)	
+		(let ((x (- (nth 1 (array-dimensions tab)) 1))
+              (line-has-nil T))
+              (loop for i from 0 to x do
+                (cond 
+                    ((not (tabuleiro-preenchido-p tab rowN i)) (setf line-has-nil nil))
+                    (t t))
+                )
+		      line-has-nil
+        )
+	)	
 	
 
 (defun tabuleiro-preenche!(tab rowN colN) 
@@ -104,10 +100,30 @@
 	(setf (aref tab rowN colN) T)))
 
 (defun tabuleiro-topo-preenchido-p(tab) 
-	(if (tabuleiro-linha-completa-p tab (- (first (array-dimensions tab)) 1))
-		T 
-		nil
-	)
+    (tabuleiro-ha-elementos-na-linha tab 17)
+)
+
+
+(defun tabuleiro-ha-elementos-na-linha(tab rowN) 
+    (if (and (< rowN (first (array-dimensions tab))) (>= rowN 0))
+        (let ((x (- (nth 1 (array-dimensions tab)) 1)))
+            (block loopBlock
+                (loop while (>= x 0) do
+                (cond 
+                        ((tabuleiro-preenchido-p tab rowN x)
+                        (return-from loopBlock T)
+                                )
+                        (
+                        (and (not (tabuleiro-preenchido-p tab rowN x)) (= x 0)) (return-from loopBlock nil)
+                                    )
+                                (t 
+                        (setf x (1- x))
+                                    )
+                    )
+                )
+            )
+        )
+    )
 )
 	
 (defun tabuleiro-remove-linha!(tab rowN)
@@ -238,16 +254,97 @@
             (not (tabuleiro-topo-preenchido-p (estado-Tabuleiro state)))))
 
 (defun qualidade(state)
-	(setf (estado-pontos  state)(* (estado-pontos state) (- 1)))
-)
+	(setf (estado-pontos  state)(* (estado-pontos state) (- 1))))
 
 
 (defun custo-oportunidade(state)
-	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state))
-)
+	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state)))
 
-;;; TODO:
-; (defun resultado (state action) t)
+
+(defun empty-lines-above-column (piece col max-line) 
+    (let ((counter 0))
+        (loop for i from 0 to max-line do
+            (cond
+                ((equalp nil (aref piece i col)) (setf counter (incf counter)))
+                (T (return-from empty-lines-above-column counter))
+            )
+        )
+        counter
+))
+
+(defun resultado (state action)
+    (let* (
+        (state-copy (copia-estado state))
+        (column (accao-coluna action))
+        (real-piece (first (estado-pecas-por-colocar state-copy)))
+        (piece (accao-peca action))
+        (tab (estado-Tabuleiro state-copy))
+        (tab-arr (tabuleiro->array tab))
+        ; TODO: run through the piece and determine the highest column
+        (column-height (tabuleiro-altura-coluna tab column))
+        (piece-lines (decf (nth 0 (array-dimensions piece))))
+        (piece-columns (decf (nth 1 (array-dimensions piece)))))
+
+        ;; Decide the column-height to use
+        (let ( (line-val (list)) (max-line-val-index 0) (max-val 0))
+
+            (loop for i from 0 to piece-columns do 
+                (cond 
+                    ;; If entry is nil, set that line-val position to be column height - number of empty spaces above
+                    ((equalp nil (aref piece 0 i)) (setf line-val (append line-val (list (- (tabuleiro-altura-coluna tab i)  (empty-lines-above-column piece i piece-lines))))))
+                    (T (setf line-val (append line-val  (list (tabuleiro-altura-coluna tab i)))))
+                )
+            )
+
+            ;; Find index with maximum value in the list. This + piece's leftmost column will be the column-height
+            (loop for i from 0 to (1- (list-length line-val)) do
+                (cond
+                    ((> (nth i line-val) max-val) (setf max-val (nth i line-val)) (setf max-line-val-index i))
+                    (T t)
+                )
+            )
+            (setf column-height (tabuleiro-altura-coluna tab (+ column max-line-val-index))))
+        ;; TODO: put this in a separate helper function
+        ;; Place piece on the tab
+        ;; NOTE: will override other pieces in case of conflict
+        (loop for i from 0 to piece-lines do
+            (loop for j from 0 to piece-columns do
+                (setf (aref tab-arr (+ column-height i) (+ column j)) (aref piece i j))))
+        ;; Update tab
+        (setf tab (array->tabuleiro tab-arr))
+
+        ;; remove piece from pecas-por-colocar
+        (setf (estado-pecas-por-colocar state-copy) 
+            (remove real-piece (estado-pecas-por-colocar state-copy) :test #'equal))
+        
+        ;; add piece to pecas-colocadas 
+        (setf (estado-pecas-colocadas state-copy) 
+            (append (list real-piece) (estado-pecas-colocadas state-copy)))
+
+        ;; Top of tab is filled, return the resulting state
+        (if (tabuleiro-topo-preenchido-p tab) 
+            (progn
+                (setf (estado-Tabuleiro state-copy) tab)
+                (return-from resultado state-copy)))
+        
+        ;; Remove the necessary lines
+        (let((num-removed-lines 0))
+            (loop for i from 0 to piece-lines do
+                (if (tabuleiro-linha-completa-p tab i)
+                    (progn
+                        (incf num-removed-lines)
+                        (tabuleiro-remove-linha! tab i)
+                        (setf i (decf i))
+                        )))
+            ;; Update the score
+            (setf (estado-pontos state-copy) 
+                (+ (estado-pontos state-copy) (gethash num-removed-lines *score*))))
+
+            ;; Update the state
+            (setf (estado-Tabuleiro state-copy) tab)
+
+        state-copy ; return the updated state
+))
 
 ;;; Utils
 (defun copy-array (arr)
