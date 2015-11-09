@@ -3,8 +3,8 @@
 
 ;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
-;;;(load "utils.fas")           ; line 1
-(load "../libs/utils.lisp")     ; line 2
+(load "utils.fas")           ; line 1
+;;;(load "../libs/utils.lisp")     ; line 2
 
 ;;; Pieces
 (defconstant piece-i 'i)
@@ -26,11 +26,11 @@
 
 ;;; Num-removed-lines-to-score hash table
 (defparameter *score* (make-hash-table))
-(setf (gethash *score* 0) 0)
-(setf (gethash *score* 1) 100)
-(setf (gethash *score* 2) 300)
-(setf (gethash *score* 3) 500)
-(setf (gethash *score* 4) 800)
+(setf (gethash 0 *score*) 0)
+(setf (gethash 1 *score*) 100)
+(setf (gethash 2 *score*) 300)
+(setf (gethash 3 *score*) 500)
+(setf (gethash 4 *score*) 800)
 
 
 ;;; Acao [2.2.1]
@@ -253,16 +253,16 @@
 	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state)))
 
 (defun resultado (state action)
-    let*(
-        ((state-copy (copia-estado state)))
-        (column (accao-coluna action))
-        (piece (accao-peca action))
-        (tab (estado-Tabuleiro state-copy))
-        (tab-arr (tabuleiro->array tab))
-        ;; TODO: run through the piece and determine the highest column
-        (column-height (tabuleiro-altura-coluna tab column))
-        (piece-lines (nth 0 (array-dimensions piece)))
-        (piece-columns (nth 1 (array-dimensions piece)))
+    (let* (
+            (state-copy (copia-estado state))
+            (column (accao-coluna action))
+            (piece (accao-peca action))
+            (tab (estado-Tabuleiro state-copy))
+            (tab-arr (tabuleiro->array tab))
+            ; TODO: run through the piece and determine the highest column
+            (column-height (tabuleiro-altura-coluna tab column))
+            (piece-lines (nth 0 (array-dimensions piece)))
+            (piece-columns (nth 1 (array-dimensions piece))))
 
         ;; TODO: put this in a separate helper function
         ;; Place piece on the tab
@@ -289,27 +289,23 @@
                 (return-from resultado state-copy)))
 
         ;; Remove the necessary lines
-        let(
-            (num-removed-lines 0)
+        (let((num-removed-lines 0))
 
             (loop for i from 0 to piece-lines do
-                (if (tabuleiro-linha-completa-p i)
+                (if (tabuleiro-linha-completa-p tab i)
                     (progn
                         (incf num-removed-lines)
-                        (setf tab (tabuleiro-remove-linha tab i)))))
+                        (setf tab (tabuleiro-remove-linha! tab i)))))
             
             ;; Update the score
             (setf (estado-pontos state-copy) 
-                (+ (estado-pontos state-copy) (gethash *score* num-removed-lines))))
+                (+ (estado-pontos state-copy) (gethash num-removed-lines *score*))))
 
             ;; Update the state
             (setf (estado-Tabuleiro state-copy) tab)
 
         state-copy ; return the updated state
 ))
-
-;;; TODO:
-; (defun resultado (state action) t)
 
 ;;; Utils
 (defun copy-array (arr)
