@@ -263,8 +263,13 @@
             (loop for j from 0 to piece-columns do
                 (setf (aref tab-arr (+ column-height i) (+ column j)) (aref piece i j))))
         
-        ;; TODO: remove piece from pecas-por-colocar
-        ;; TODO: add piece to pecas-colocadas 
+        ;; remove piece from pecas-por-colocar
+        (setf (estado-pecas-por-colocar state-copy) 
+            (remove piece (estado-pecas-por-colocar state-copy) :test #'equal))
+        
+        ;; add piece to pecas-colocadas 
+        (setf (estado-pecas-colocadas state-copy) 
+            (append (estado-pecas-colocadas state-copy) (list piece)))
 
         (if (tabuleiro-topo-preenchido-p tab) 
             (progn
