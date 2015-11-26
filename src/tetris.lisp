@@ -281,7 +281,7 @@
         (tab (estado-Tabuleiro state-copy))
         (tab-arr (tabuleiro->array tab))
         ; TODO: run through the piece and determine the highest column
-        (column-height (tabuleiro-altura-coluna tab column))
+        (column-height (decf (tabuleiro-altura-coluna tab column)))
         (piece-lines (decf (nth 0 (array-dimensions piece))))
         (piece-columns (decf (nth 1 (array-dimensions piece)))))
 
