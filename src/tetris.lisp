@@ -27,15 +27,16 @@
 (setf (gethash 3 *score*) 500)
 (setf (gethash 4 *score*) 800)
 
+
 ;;; Acao [2.2.1]
 
 (defun cria-accao (leftmost-col piece)
     (cons leftmost-col piece))
 
-(defun accao-coluna (action) 
+(defun accao-coluna (action)
     (car action))
 
-(defun accao-peca (action) 
+(defun accao-peca (action)
     (cdr action))
 
 
@@ -47,71 +48,71 @@
 (defun copia-tabuleiro (tab)
     (copy-array tab))
 
-(defun tabuleiro-preenchido-p(tab rowNum colNum) 
-	(if (null (aref tab rowNum colNum)) nil T))
-	
-(defun tabuleiro-altura-coluna(tab colN)  
-	(if (< colN (nth 1 (array-dimensions tab)))
-		(let ((X (- (first (array-dimensions tab)) 1)))
-			(loop while (>= X 0) do
-				(cond   
-					((tabuleiro-preenchido-p tab x colN)
-						(return-from tabuleiro-altura-coluna (+ x 1))
-					)                                  
-					((= x 0) 
-						(return-from tabuleiro-altura-coluna x)
-					)
-					(t 
-						(setf x (1- x))
-					)
-				)
-			)
-			
-		)
-	)
+(defun tabuleiro-preenchido-p(tab rowNum colNum)
+    (if (null (aref tab rowNum colNum)) nil T))
+
+(defun tabuleiro-altura-coluna(tab colN)
+    (if (< colN (nth 1 (array-dimensions tab)))
+        (let ((X (- (first (array-dimensions tab)) 1)))
+            (loop while (>= X 0) do
+                (cond
+                    ((tabuleiro-preenchido-p tab x colN)
+                        (return-from tabuleiro-altura-coluna (+ x 1))
+                    )
+                    ((= x 0)
+                        (return-from tabuleiro-altura-coluna x)
+                    )
+                    (t
+                        (setf x (1- x))
+                    )
+                )
+            )
+
+        )
+    )
 )
 
 
-	
-(defun tabuleiro-linha-completa-p(tab rowN) 
-		(let ((x (- (nth 1 (array-dimensions tab)) 1))
-              (line-has-nil T))
-              (loop for i from 0 to x do
-                (cond 
+
+(defun tabuleiro-linha-completa-p(tab rowN)
+        (let ((x (- (nth 1 (array-dimensions tab)) 1))
+            (line-has-nil T))
+            (loop for i from 0 to x do
+                (cond
                     ((not (tabuleiro-preenchido-p tab rowN i)) (setf line-has-nil nil))
                     (t t))
                 )
-		      line-has-nil
+            line-has-nil
         )
-	)	
-	
+    )
 
-(defun tabuleiro-preenche!(tab rowN colN) 
-	(if 
-	(and (and (< rowN (first (array-dimensions tab)))
-	(< colN (nth 1 (array-dimensions tab))))
-	(and (>= rowN 0) (>= colN 0))
-	)
-	(setf (aref tab rowN colN) T)))
 
-(defun tabuleiro-topo-preenchido-p(tab) 
+(defun tabuleiro-preenche!(tab rowN colN)
+    (if
+    (and (and (< rowN (first (array-dimensions tab)))
+    (< colN (nth 1 (array-dimensions tab))))
+    (and (>= rowN 0) (>= colN 0))
+    )
+    (setf (aref tab rowN colN) T)))
+
+(defun tabuleiro-topo-preenchido-p(tab)
     (tabuleiro-ha-elementos-na-linha tab 17)
 )
 
 
-(defun tabuleiro-ha-elementos-na-linha(tab rowN) 
+(defun tabuleiro-ha-elementos-na-linha(tab rowN)
     (if (and (< rowN (first (array-dimensions tab))) (>= rowN 0))
         (let ((x (- (nth 1 (array-dimensions tab)) 1)))
             (block loopBlock
                 (loop while (>= x 0) do
-                (cond 
+                (cond
                         ((tabuleiro-preenchido-p tab rowN x)
                         (return-from loopBlock T)
                                 )
                         (
                         (and (not (tabuleiro-preenchido-p tab rowN x)) (= x 0)) (return-from loopBlock nil)
                                     )
-                                (t 
+                                (t
                         (setf x (1- x))
                                     )
                     )
@@ -120,7 +121,7 @@
         )
     )
 )
-	
+
 (defun tabuleiro-remove-linha!(tab rowN)
     (let ((num-of-cols (tabuleiro-num-of-cols tab))
           (num-of-rows (tabuleiro-num-of-rows tab))
@@ -192,46 +193,46 @@
 
 ;;; Funcoes Do Problema de Procura [2.2.1]
 
-(defun accoes (state) 
+(defun accoes (state)
     (let* (
         (actions (list)) ; stores the resulting list of actions
-        
-        (add-piece-i-actions #'(lambda () 
+
+        (add-piece-i-actions #'(lambda ()
             (setf actions (append actions (generate-piece-actions peca-i0)))
             (setf actions (append actions (generate-piece-actions peca-i1)))))
 
-        (add-piece-l-actions #'(lambda () 
+        (add-piece-l-actions #'(lambda ()
             (setf actions (append actions (generate-piece-actions peca-l0)))
             (setf actions (append actions (generate-piece-actions peca-l1)))
             (setf actions (append actions (generate-piece-actions peca-l2)))
             (setf actions (append actions (generate-piece-actions peca-l3)))))
 
-        (add-piece-j-actions #'(lambda () 
+        (add-piece-j-actions #'(lambda ()
             (setf actions (append actions (generate-piece-actions peca-j0)))
             (setf actions (append actions (generate-piece-actions peca-j1)))
             (setf actions (append actions (generate-piece-actions peca-j2)))
             (setf actions (append actions (generate-piece-actions peca-j3)))))
 
-        (add-piece-o-actions #'(lambda () 
+        (add-piece-o-actions #'(lambda ()
             (setf actions (append actions (generate-piece-actions peca-o0)))))
 
-        (add-piece-s-actions #'(lambda () 
+        (add-piece-s-actions #'(lambda ()
             (setf actions (append actions (generate-piece-actions peca-s0)))
             (setf actions (append actions (generate-piece-actions peca-s1)))))
 
-        (add-piece-z-actions #'(lambda () 
+        (add-piece-z-actions #'(lambda ()
             (setf actions (append actions (generate-piece-actions peca-z0)))
             (setf actions (append actions (generate-piece-actions peca-z1)))))
 
-        (add-piece-t-actions #'(lambda () 
+        (add-piece-t-actions #'(lambda ()
             (setf actions (append actions (generate-piece-actions peca-t0)))
             (setf actions (append actions (generate-piece-actions peca-t1)))
             (setf actions (append actions (generate-piece-actions peca-t2)))
             (setf actions (append actions (generate-piece-actions peca-t3))))))
-        
+
         ;; Go through the list of "pieces to be placed" and append the
         ;; available actions for each one of them
-        (dolist (piece (estado-pecas-por-colocar state)) 
+        (dolist (piece (estado-pecas-por-colocar state))
             (cond
 
                 ((equalp piece piece-i) (funcall add-piece-i-actions))
@@ -245,18 +246,18 @@
             actions))
 
 (defun solucao (state)
-    (and (null(estado-pecas-por-colocar state)) 
+    (and (null(estado-pecas-por-colocar state))
             (not (tabuleiro-topo-preenchido-p (estado-Tabuleiro state)))))
 
 (defun qualidade(state)
-	(setf (estado-pontos  state)(* (estado-pontos state) (- 1))))
+    (setf (estado-pontos  state)(* (estado-pontos state) (- 1))))
 
 
 (defun custo-oportunidade(state)
-	(- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state)))
+    (- (calculate-points (estado-pecas-colocadas state)) (estado-pontos state)))
 
 
-(defun empty-lines-above-column (piece col max-line) 
+(defun empty-lines-above-column (piece col max-line)
     (let ((counter 0))
         (loop for i from 0 to max-line do
             (cond
@@ -283,8 +284,8 @@
         ;; Decide the column-height to use
         (let ( (line-val (list)) (max-line-val-index 0) (max-val 0))
 
-            (loop for i from 0 to piece-columns do 
-                (cond 
+            (loop for i from 0 to piece-columns do
+                (cond
                     ;; If entry is nil, set that line-val position to be column height - number of empty spaces above
                     ((equalp nil (aref piece 0 i)) (setf line-val (append line-val (list (- (tabuleiro-altura-coluna tab i)  (empty-lines-above-column piece i piece-lines))))))
                     (T (setf line-val (append line-val  (list (tabuleiro-altura-coluna tab i)))))
@@ -298,7 +299,7 @@
                     (T t)
                 )
             )
-            (setf column-height (tabuleiro-altura-coluna tab (+ column max-line-val-index))))
+        (setf column-height (tabuleiro-altura-coluna tab (+ column max-line-val-index))))
         ;; TODO: put this in a separate helper function
         ;; Place piece on the tab
         ;; NOTE: will override other pieces in case of conflict
@@ -309,19 +310,19 @@
         (setf tab (array->tabuleiro tab-arr))
 
         ;; remove piece from pecas-por-colocar
-        (setf (estado-pecas-por-colocar state-copy) 
+        (setf (estado-pecas-por-colocar state-copy)
             (remove real-piece (estado-pecas-por-colocar state-copy) :test #'equal))
-        
-        ;; add piece to pecas-colocadas 
-        (setf (estado-pecas-colocadas state-copy) 
+
+        ;; add piece to pecas-colocadas
+        (setf (estado-pecas-colocadas state-copy)
             (append (list real-piece) (estado-pecas-colocadas state-copy)))
 
         ;; Top of tab is filled, return the resulting state
-        (if (tabuleiro-topo-preenchido-p tab) 
+        (if (tabuleiro-topo-preenchido-p tab)
             (progn
                 (setf (estado-Tabuleiro state-copy) tab)
                 (return-from resultado state-copy)))
-        
+
         ;; Remove the necessary lines
         (let((num-removed-lines 0))
             (loop for i from 0 to piece-lines do
@@ -332,7 +333,7 @@
                         (setf i (decf i))
                         )))
             ;; Update the score
-            (setf (estado-pontos state-copy) 
+            (setf (estado-pontos state-copy)
                 (+ (estado-pontos state-copy) (gethash num-removed-lines *score*))))
 
             ;; Update the state
@@ -352,13 +353,13 @@
     "Given a piece configuration generates a list of valid actions
      for that piece"
     (let (   ; num columns the piece spans
-             (piece-columns (nth 1 (array-dimensions piece)))
-             (table-columns 10)
-             (actions (list))
+            (piece-columns (nth 1 (array-dimensions piece)))
+            (table-columns 10)
+            (actions (list))
          )
-         (dotimes (column (+ 1 (- table-columns piece-columns)))
-             (setf actions (append actions (list(cria-accao column piece)))))
-          actions))
+        (dotimes (column (+ 1 (- table-columns piece-columns)))
+            (setf actions (append actions (list(cria-accao column piece)))))
+        actions))
 
 (defun getPoints(piece)
     (cond
