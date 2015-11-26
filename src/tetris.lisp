@@ -1,11 +1,6 @@
 ;;;; Grupo 49: Illya Gerasymchuk (78134), Nuno Silva (78454), Jorge Heleno (79042) ;;;;
 ;;;; Tetris source file
 
-;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
-;;; Uncomment Line 2 AND comment line 1 (below) when using locally
-;;;(load "utils.fas")           ; line 1
-;;;(load "../libs/utils.lisp")     ; line 2
-
 ;;; Pieces
 (defconstant piece-i 'i)
 (defconstant piece-j 'j)
@@ -381,3 +376,9 @@
         ((not(null (first l1)))
             (+ (getPoints (first l1)) (calculate-points (rest l1))))
         (t 0)))
+
+
+;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
+;;; Uncomment Line 2 AND comment line 1 (below) when using locally
+;;;(load "utils.fas")           ; line 1
+(load "../libs/utils.lisp")     ; line 2
