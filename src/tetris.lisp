@@ -385,7 +385,6 @@
 
 
 
-;;;Not tested yet	NEED RETURNS	
 (defun aggregateHeight(board)
 	(let ((height 0) (maxCol (tabuleiro-num-of-cols board)) (i 0))
 		(loop while (< i maxCol) do
@@ -431,4 +430,23 @@
 
 		(return-from numHoles holecount)
 	)
+)
+
+
+;;;HAS BUG
+(defun bumpiness(board)
+	(let ((i 0) (bump 0) (maxLine (tabuleiro-num-of-rows board)))
+	  (loop while(< i maxLine) do 
+		(setf bump (+ bump (- (tabuleiro-altura-coluna board i) (tabuleiro-altura-coluna board (+ i 1)) )))	
+		(setf i (1+ i))
+
+			
+			
+		)
+	 (return-from bumpiness bump) 
+	  
+	)  
+  
+  
+  
 )
