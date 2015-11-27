@@ -4,7 +4,7 @@
 ;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
 ;;;(load "utils.fas")           ; line 1
-;;;(load "../libs/utils.lisp")     ; line 2
+(load "../libs/utils.lisp")     ; line 2
 
 ;;; Pieces
 (defconstant piece-i 'i)
@@ -380,4 +380,36 @@
     (cond
         ((not(null (first l1)))
             (+ (getPoints (first l1)) (calculate-points (rest l1))))
-        (t 0)))
+        (t 0)))	
+
+
+
+
+;;;Not tested yet	NEED RETURNS	
+(defun aggregateHeight(board)
+	(let ((height 0) (maxCol (tabuleiro-num-of-cols board)) (i 0))
+		(loop while (< i maxCol) do
+			(setf height (+ height (tabuleiro-altura-coluna board i)))
+			(setf i (1+ i))
+		)
+		(return-from aggregateHeight height)
+	)
+)
+
+(defun completeLines(board)
+
+	(let ((numCompLines 0) 
+		  (maxLine (tabuleiro-num-of-rows))
+		  (i 0))
+		(loop while (< i maxLine) do
+			(cond 
+				((tabuleiro-linha-completa-p board i) (setf numCompLines (1+ numCompLines) ) (setf i (1+ i)))
+				(t (setf i (1+ i)))
+			)
+		
+		
+		)
+		(return-from completeLines numCompLines)
+
+	)
+)
