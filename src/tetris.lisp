@@ -303,6 +303,54 @@
         state-copy ; return the updated state
 ))
 
+;;; [2.2.2] Procuras
+
+;; TODO: actions-to-state should be a lambda inside procura-pp
+(defun actions-to-state (state parent-state parent-action)
+    "Given a state, a parent-satate hashmap and a parent-action hashmap returns a list of actions to state"
+    (let ((action-list nil)
+           (temp-action nil)
+           (temp-sate nil))
+
+    (setf temp-action (gethash state parent-action))
+    (if (= parent-action nil) (return-from actions-to-state nil)) ; passed state is initial state
+    (setf action-list (list temp-action)) ; add first action to list
+
+    (loop
+        (setf temp-sate (gethash state parent-state))
+        (if (= temp-sate nil) (return action-list)) ; reached intial state
+        (setf action-list (append (gethash state parent-action) action-list)))))
+
+(defun procura-pp (problem)
+    (let* ((curr-state (problema-estado-inicial problem))
+           (open (list curr-state)) ; open list, intially contains the start state
+           (closed (make-hash-table :test #'equalp)) ; T if state has been closed
+           (parent-state (make-hash-table :test #'equalp)) ; parent of a state
+           (parent-action (make-hash-table :test #'equalp)) ; parent action of a state
+           (state-actions nil)
+           (child-state nil))
+
+           (loop
+                (if (null open) (return nil))  ; no solution found, return empty list
+                
+                (setf curr-state (first open)) ; get first state from open states list
+                (if (solucao curr-state) (return (actions-to-state curr-state parent-state parent-action))) ; end state reached, return solution
+
+                ;; TODO: move into a separate function ? 
+                (cond 
+                    ((not (gethash curr-state closed))  ; if current state hasn't been visited before
+                        (setf (gethash curr-state closed) t) ; mark current state as visited
+                        
+                        (setf state-actions (accoes curr-state))
+                        ;; foreach(action a in actions)
+                        (dolist (a state-actions)
+                            (setf child-state (resultado curr-state a)) ; apply action to state
+                            (setf open (append (list child-state) open)) ; LIFO
+                            (setf (gethash child-state parent-state) curr-state) ; register parent state of new states
+                            (setf (gethash child-state parent-action) a))) ; register parent action of new state
+                        
+                    (t t)))))
+
 ;;; Utils
 (defun copy-array (arr)
     "Given an array, returns a copy of it"
