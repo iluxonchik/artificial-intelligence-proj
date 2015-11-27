@@ -4,7 +4,7 @@
 ;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
 ;;;(load "utils.fas")           ; line 1
-(load "../libs/utils.lisp")     ; line 2
+;;;(load "../libs/utils.lisp")     ; line 2
 
 ;;; Pieces
 (defconstant piece-i 'i)
@@ -399,7 +399,7 @@
 (defun completeLines(board)
 
 	(let ((numCompLines 0) 
-		  (maxLine (tabuleiro-num-of-rows))
+		  (maxLine (tabuleiro-num-of-rows board))
 		  (i 0))
 		(loop while (< i maxLine) do
 			(cond 
@@ -411,5 +411,24 @@
 		)
 		(return-from completeLines numCompLines)
 
+	)
+)
+
+
+(defun numHoles(board col)
+  
+	(let (
+		  (i 0) (holecount 0)(height (tabuleiro-altura-coluna board col)))
+	  		(loop while(< i height) do
+				(cond
+				  
+				  ((not (tabuleiro-preenchido-p board i col)) (setf holecount (1+ holecount)) (setf i (1+ i)))
+				  (t (setf i (1+ i)))
+				  )		  
+				  
+				  
+		)
+
+		(return-from numHoles holecount)
 	)
 )
