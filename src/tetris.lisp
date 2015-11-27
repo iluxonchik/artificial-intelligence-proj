@@ -56,21 +56,9 @@
         (let ((X (- (first (array-dimensions tab)) 1)))
             (loop while (>= X 0) do
                 (cond
-                    ((tabuleiro-preenchido-p tab x colN)
-                        (return-from tabuleiro-altura-coluna (+ x 1))
-                    )
-                    ((= x 0)
-                        (return-from tabuleiro-altura-coluna x)
-                    )
-                    (t
-                        (setf x (1- x))
-                    )
-                )
-            )
-
-        )
-    )
-)
+                    ((tabuleiro-preenchido-p tab x colN) (return-from tabuleiro-altura-coluna (+ x 1)))
+                    ((= x 0) (return-from tabuleiro-altura-coluna x))
+                    (t (setf x (1- x))))))))
 
 
 
@@ -80,24 +68,18 @@
             (loop for i from 0 to x do
                 (cond
                     ((not (tabuleiro-preenchido-p tab rowN i)) (setf line-has-nil nil))
-                    (t t))
-                )
-            line-has-nil
-        )
-    )
+                    (t t)))
+            line-has-nil))
 
 
 (defun tabuleiro-preenche!(tab rowN colN)
-    (if
-    (and (and (< rowN (first (array-dimensions tab)))
+    (if (and (and (< rowN (first (array-dimensions tab)))
     (< colN (nth 1 (array-dimensions tab))))
-    (and (>= rowN 0) (>= colN 0))
-    )
+    (and (>= rowN 0) (>= colN 0)))
     (setf (aref tab rowN colN) T)))
 
 (defun tabuleiro-topo-preenchido-p(tab)
-    (tabuleiro-ha-elementos-na-linha tab 17)
-)
+    (tabuleiro-ha-elementos-na-linha tab 17))
 
 
 (defun tabuleiro-ha-elementos-na-linha(tab rowN)
@@ -106,21 +88,10 @@
             (block loopBlock
                 (loop while (>= x 0) do
                 (cond
-                        ((tabuleiro-preenchido-p tab rowN x)
-                        (return-from loopBlock T)
-                                )
-                        (
-                        (and (not (tabuleiro-preenchido-p tab rowN x)) (= x 0)) (return-from loopBlock nil)
-                                    )
-                                (t
-                        (setf x (1- x))
-                                    )
-                    )
-                )
-            )
-        )
-    )
-)
+                    ((tabuleiro-preenchido-p tab rowN x)
+                    (return-from loopBlock T))
+                    ((and (not (tabuleiro-preenchido-p tab rowN x)) (= x 0)) (return-from loopBlock nil))
+                    (t(setf x (1- x)))))))))
 
 (defun tabuleiro-remove-linha!(tab rowN)
     (let ((num-of-cols (tabuleiro-num-of-cols tab))
@@ -130,37 +101,27 @@
         (cond
             ((= upper-rowN num-of-rows)
                 ; put an empty line in the top row
-                (dotimes (i num-of-cols) (setf (aref tab rowN i) nil) )
-            )
+                (dotimes (i num-of-cols) (setf (aref tab rowN i) nil)))
             ((< upper-rowN num-of-rows)
                 ; move the row rowN+1 to rowN
                 (dotimes (i num-of-cols) (setf (aref tab rowN i) (aref tab upper-rowN i) ) )
-                (tabuleiro-remove-linha! tab upper-rowN)
-            )
-            (t nil)
-        )
-    )
-)
+                (tabuleiro-remove-linha! tab upper-rowN))
+            (t nil))))
 
 (defun tabuleiro-num-of-cols(tab)
-    (nth 1 (array-dimensions tab))
-)
+    (nth 1 (array-dimensions tab)))
 
 (defun tabuleiro-num-of-rows(tab)
-    (nth 0 (array-dimensions tab))
-)
+    (nth 0 (array-dimensions tab)))
 
 (defun tabuleiros-iguais-p(tab1 tab2)
-    (equalp tab1 tab2)
-)
+    (equalp tab1 tab2))
 
 (defun tabuleiro->array(tab)
-    (copy-array tab)
-)
+    (copy-array tab))
 
 (defun array->tabuleiro(tab)
-    (copy-array tab)
-)
+    (copy-array tab))
 
 
 ;;; Estado [2.1.3]
@@ -172,8 +133,8 @@
     Tabuleiro)
 
 (defun copia-estado (state)
-    (make-estado :pontos (estado-pontos state) :pecas-por-colocar (copy-list (estado-pecas-por-colocar state)) :pecas-colocadas (copy-list (estado-pecas-colocadas state)) :Tabuleiro (copia-tabuleiro (estado-Tabuleiro state)))
-)
+    (make-estado :pontos (estado-pontos state) :pecas-por-colocar (copy-list (estado-pecas-por-colocar state)) :pecas-colocadas 
+                         (copy-list (estado-pecas-colocadas state)) :Tabuleiro (copia-tabuleiro (estado-Tabuleiro state))))
 
 (defun estados-iguais-p (state1 state2)
     (equalp state1 state2))
