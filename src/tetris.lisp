@@ -133,7 +133,7 @@
     Tabuleiro)
 
 (defun copia-estado (state)
-    (make-estado :pontos (estado-pontos state) :pecas-por-colocar (copy-list (estado-pecas-por-colocar state)) :pecas-colocadas 
+    (make-estado :pontos (estado-pontos state) :pecas-por-colocar (copy-list (estado-pecas-por-colocar state)) :pecas-colocadas
                          (copy-list (estado-pecas-colocadas state)) :Tabuleiro (copia-tabuleiro (estado-Tabuleiro state))))
 
 (defun estados-iguais-p (state1 state2)
@@ -302,6 +302,78 @@
 
         state-copy ; return the updated state
 ))
+
+;;; Procuras [2.2.2]
+
+;; procura-A*: problema x heuristica -> lista acoes
+;; Funcao que recebe um problema e uma fx h, e faz A*.
+;; Devolve uma lista com as acoes que levam a' solucao encontrada.
+;;  heuristica: estado -> inteiro
+(defun procura-A* (problem heuristic)
+    (let* (
+            (curr-state (problema-estado-inicial problem))
+            (open (list curr-state)) ; open list initially contains the start state
+            (closed (make-hash-table :test #'equalp)) ; T if state has benn closed
+            (parent-state (make-hash-table :test #' equalp)) ; parent of a state
+            (parent-action (make-hash-table :test #'equalp)) ; parent action of a state
+            (f (make-hash-table :test #'equalp)) ; f function of a state
+            (g (make-hash-table :test #'equalp)) ; g function of a state
+            (h (make-hash-table :test #'equalp)) ; h function of a state
+            (state-actions nil)
+            (child-state nil)
+            ; this does not work :(   \/
+            ;(solucao (problema-solucao problem)) ; funcao solucao do problema
+            ;(accoes (problema-accoes problem))   ; funcao accoes  do problema
+            ;(resultado (problema-resultado problem))  ; funcao resultado do problema
+            ;(custo (problema-custo-caminho problem))  ; funcao custo-caminho do problema
+            (temp-g 0)
+            (temp-h 0)
+        )
+        (loop ; while solution not found
+            (if (null open) (return nil)) ; no solution found
+
+            ; sort list of open states according to their f value
+            (stable-sort open #'(lambda (x y)
+                ( < (gethash x f) (gethash y f)) ) ; sort ascending
+            )
+
+            (setf curr-state (first open)) ; the first state from queue
+            (setf open (rest open)) ; remove element from queue
+            (if (funcall (problema-solucao problem) curr-state) (return nil)) ; TODO: create list of actions
+
+            (if (not (gethash curr-state closed)) ; if not already visited
+                (progn
+                    (setf (gethash curr-state closed) t) ; mark state as visited
+
+                    (setf state-actions (funcall (problema-accoes problem) curr-state)) ; gen possible actions
+                    ; foreach action a in state-actions
+                    (dolist (a state-actions)
+                        (setf child-state (funcall (problema-resultado problem) curr-state a)) ; apply action to state
+                        (setf open (append (list child-state) open)) ; append to beggining of list.
+                        ; /\ Como usamos stable sort, se dois estados tiverem
+                        ;    f igual vai ser selecionado o ultimo a entrar, ou seja,
+                        ;    o que esta' mais perto do inicio da lista.
+
+                        (setf (gethash child-state parent-state) curr-state) ; register parent state
+                        (setf (gethash child-state parent-action) a) ; register parent action
+
+                        ; calculate g, h, and f
+                        (setf temp-g (funcall (problema-custo-caminho problem) child-state)) ; calculate g
+                        (setf (gethash child-state g) temp-g) ; store g
+
+                        (setf temp-h (funcall heuristic child-state)) ; calculate h
+                        (setf (gethash child-state h) temp-h) ; store h
+
+                        ; store and calculate f
+                        (setf (gethash child-state f) (+ temp-g temp-h) )
+                    )
+                )
+            )
+
+        )
+    )
+)
+
 
 ;;; Utils
 (defun copy-array (arr)
