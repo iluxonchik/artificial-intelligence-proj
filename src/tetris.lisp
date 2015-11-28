@@ -239,7 +239,7 @@
         (tab (estado-Tabuleiro state-copy))
         (tab-arr (tabuleiro->array tab))
         ; TODO: run through the piece and determine the highest column
-        (column-height (1- (tabuleiro-altura-coluna tab column)))
+        (column-height) 
         (piece-lines (1- (nth 0 (array-dimensions piece))))
         (piece-columns (1- (nth 1 (array-dimensions piece))))
         (tab-num-of-lines (tabuleiro-num-of-rows tab))
@@ -252,30 +252,28 @@
                 (cond
                     ;; If entry is nil, set that line-val position to be column height - number of empty spaces above
                     ((equalp nil (aref piece 0 i)) (setf line-val (append line-val (list (- (tabuleiro-altura-coluna tab i)  (empty-lines-above-column piece i piece-lines))))))
-                    (T (setf line-val (append line-val  (list (tabuleiro-altura-coluna tab i)))))
-                )
-            )
+                    (T (setf line-val (append line-val  (list (tabuleiro-altura-coluna tab i)))))))
 
             ;; Find index with maximum value in the list. This + piece's leftmost column will be the column-height
             (loop for i from 0 to (1- (list-length line-val)) do
                 (cond
                     ((> (nth i line-val) max-val) (setf max-val (nth i line-val)) (setf max-line-val-index i))
-                    (T t)
-                )
-            )
+                    (T t)))
+
         (setf column-height (tabuleiro-altura-coluna tab (+ column max-line-val-index))))
+
         ;; TODO: put this in a separate helper function
         ;; Place piece on the tab
         ;; NOTE: will override other pieces in case of conflict
         (loop for i from 0 to piece-lines do
             (let* (
                 (tab-line-index (+ column-height i)))
-                (if (>= tab-line-index tab-num-of-lines) (loop-finish))
+                ;(if (>= tab-line-index tab-num-of-lines) (loop-finish))
                 (loop for j from 0 to piece-columns do
                     (let* (
                         (tab-col-index (+ column j)))
-                        (if (>= tab-col-index tab-num-of-cols) (loop-finish))
-                        (setf (aref tab-arr tab-line-index tab-col-index) (aref piece i j))) )))
+                        ;(if (>= tab-col-index tab-num-of-cols) (loop-finish))
+                        (setf (aref tab-arr tab-line-index tab-col-index) (aref piece i j))))))
 
         ;; Update tab
         (setf tab (array->tabuleiro tab-arr))
