@@ -246,21 +246,21 @@
         (tab-num-of-cols (tabuleiro-num-of-cols tab)))
 
         ;; Decide the column-height to use
-        (let ( (line-val (list)) (max-line-val-index 0) (max-val 0))
+        (let ((line-val (list)) (max-line-val-index 0) (max-val 0))
 
             (loop for i from 0 to piece-columns do
                 (cond
                     ;; If entry is nil, set that line-val position to be column height - number of empty spaces above
-                    ((equalp nil (aref piece 0 i)) (setf line-val (append line-val (list (- (tabuleiro-altura-coluna tab i)  (empty-lines-above-column piece i piece-lines))))))
-                    (T (setf line-val (append line-val  (list (tabuleiro-altura-coluna tab i)))))))
+                    ((equalp nil (aref piece 0 i))
+                        (setf line-val (append line-val (list (- (tabuleiro-altura-coluna tab (+ i column)) (empty-lines-above-column piece i piece-lines))))))
+                    (T (setf line-val (append line-val  (list (tabuleiro-altura-coluna tab (+ i column))))))))
 
             ;; Find index with maximum value in the list. This + piece's leftmost column will be the column-height
             (loop for i from 0 to (1- (list-length line-val)) do
                 (cond
                     ((> (nth i line-val) max-val) (setf max-val (nth i line-val)) (setf max-line-val-index i))
                     (T t)))
-
-        (setf column-height (tabuleiro-altura-coluna tab (+ column max-line-val-index))))
+        (setf column-height max-val))
 
         ;; TODO: put this in a separate helper function
         ;; Place piece on the tab
