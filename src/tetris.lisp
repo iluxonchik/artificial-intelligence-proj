@@ -282,7 +282,7 @@
 
         ;; remove piece from pecas-por-colocar
         (setf (estado-pecas-por-colocar state-copy)
-            (remove real-piece (estado-pecas-por-colocar state-copy) :test #'equal))
+            (remove real-piece (estado-pecas-por-colocar state-copy) :test #'equal :count 1))
 
         ;; add piece to pecas-colocadas
         (setf (estado-pecas-colocadas state-copy)
