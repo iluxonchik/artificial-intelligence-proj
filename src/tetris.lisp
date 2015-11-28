@@ -241,7 +241,9 @@
         ; TODO: run through the piece and determine the highest column
         (column-height (1- (tabuleiro-altura-coluna tab column)))
         (piece-lines (1- (nth 0 (array-dimensions piece))))
-        (piece-columns (1- (nth 1 (array-dimensions piece)))))
+        (piece-columns (1- (nth 1 (array-dimensions piece))))
+        (tab-num-of-lines (tabuleiro-num-of-rows tab))
+        (tab-num-of-cols (tabuleiro-num-of-cols tab)))
 
         ;; Decide the column-height to use
         (let ( (line-val (list)) (max-line-val-index 0) (max-val 0))
@@ -266,8 +268,15 @@
         ;; Place piece on the tab
         ;; NOTE: will override other pieces in case of conflict
         (loop for i from 0 to piece-lines do
-            (loop for j from 0 to piece-columns do
-                (setf (aref tab-arr (+ column-height i) (+ column j)) (aref piece i j))))
+            (let* (
+                (tab-line-index (+ column-height i)))
+                (if (>= tab-line-index tab-num-of-lines) (loop-finish))
+                (loop for j from 0 to piece-columns do
+                    (let* (
+                        (tab-col-index (+ column j)))
+                        (if (>= tab-col-index tab-num-of-cols) (loop-finish))
+                        (setf (aref tab-arr tab-line-index tab-col-index) (aref piece i j))) )))
+
         ;; Update tab
         (setf tab (array->tabuleiro tab-arr))
 
