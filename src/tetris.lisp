@@ -229,6 +229,7 @@
         counter
 ))
 
+
 (defun resultado (state action)
     (let* (
         (state-copy (copia-estado state))
@@ -238,9 +239,9 @@
         (tab (estado-Tabuleiro state-copy))
         (tab-arr (tabuleiro->array tab))
         ; TODO: run through the piece and determine the highest column
-        (column-height (decf (tabuleiro-altura-coluna tab column)))
-        (piece-lines (decf (nth 0 (array-dimensions piece))))
-        (piece-columns (decf (nth 1 (array-dimensions piece)))))
+        (column-height (1- (tabuleiro-altura-coluna tab column)))
+        (piece-lines (1- (nth 0 (array-dimensions piece))))
+        (piece-columns (1- (nth 1 (array-dimensions piece)))))
 
         ;; Decide the column-height to use
         (let ( (line-val (list)) (max-line-val-index 0) (max-val 0))
@@ -291,7 +292,7 @@
                     (progn
                         (incf num-removed-lines)
                         (tabuleiro-remove-linha! tab i)
-                        (setf i (decf i))
+                        (decf i)
                         )))
             ;; Update the score
             (setf (estado-pontos state-copy)
