@@ -313,10 +313,10 @@
                     ((not (gethash curr-state closed))  ; if current state hasn't been visited before
                         (setf (gethash curr-state closed) t) ; mark current state as visited
                         
-                        (setf state-actions (accoes curr-state))
+                        (setf state-actions (funcall (problema-accoes problem) curr-state))
                         ;; foreach(action a in actions)
                         (dolist (a state-actions)
-                            (setf child-state (resultado curr-state a)) ; apply action to state
+                            (setf child-state (funcall (problema-resultado problem) curr-state a)) ; apply action to state
                             (setf open (append (list child-state) open)) ; LIFO
                             (setf (gethash child-state parent-state) curr-state) ; register parent state of new state
                             (setf (gethash child-state parent-action) a))) ; register parent action of new state
