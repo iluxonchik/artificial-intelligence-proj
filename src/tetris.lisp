@@ -191,6 +191,9 @@
             (setf actions (append actions (generate-piece-actions peca-t2)))
             (setf actions (append actions (generate-piece-actions peca-t3))))))
 
+        ;; return empty list if this is a terminal state
+        (if (estado-final-p state) (return-from accoes nil))
+
         ;; Go through the list of "pieces to be placed" and append the
         ;; available actions for each one of them
         (dolist (piece (estado-pecas-por-colocar state))
@@ -239,7 +242,7 @@
         (tab (estado-Tabuleiro state-copy))
         (tab-arr (tabuleiro->array tab))
         ; TODO: run through the piece and determine the highest column
-        (column-height) 
+        (column-height)
         (piece-lines (1- (nth 0 (array-dimensions piece))))
         (piece-columns (1- (nth 1 (array-dimensions piece))))
         (tab-num-of-lines (tabuleiro-num-of-rows tab))
@@ -273,9 +276,9 @@
                         (tab-col-index (+ column j)))
                         (if (>= tab-col-index tab-num-of-cols) (loop-finish))
                         ;; Only place the piece part if the position is free (to avoid overriden pieces)
-                        (if (equalp (aref tab-arr tab-line-index tab-col-index) nil) 
+                        (if (equalp (aref tab-arr tab-line-index tab-col-index) nil)
                             (setf (aref tab-arr tab-line-index tab-col-index) (aref piece i j)))))))
-                        
+
 
         ;; Update tab
         (setf tab (array->tabuleiro tab-arr))
