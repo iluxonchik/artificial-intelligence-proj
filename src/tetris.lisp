@@ -159,10 +159,8 @@
 ;;; Funcoes Do Problema de Procura [2.2.1]
 
 (defun accoes (state)
-    (let* (
-        (actions (list)) ; stores the resulting list of actions
-        )
-
+    (let ((actions (list))) ; stores the resulting list of actions
+        
         ;; return empty list if this is a terminal state
         (if (estado-final-p state) (return-from accoes nil))
 
@@ -189,11 +187,8 @@
         (loop for i from 0 to max-line do
             (cond
                 ((equalp nil (aref piece i col)) (setf counter (incf counter)))
-                (T (return-from empty-lines-above-column counter))
-            )
-        )
-        counter
-))
+                (T (return-from empty-lines-above-column counter))))
+        counter))
 
 
 (defun resultado (state action)
@@ -267,8 +262,7 @@
                     (progn
                         (incf num-removed-lines)
                         (tabuleiro-remove-linha! tab i)
-                        (decf i)
-                        )))
+                        (decf i))))
             ;; Update the score
             (setf (estado-pontos state-copy)
                 (+ (estado-pontos state-copy) (gethash num-removed-lines *score*))))
@@ -276,8 +270,7 @@
             ;; Update the state
             (setf (estado-Tabuleiro state-copy) tab)
 
-        state-copy ; return the updated state
-))
+        state-copy)) ; return the updated state
 
 ;;; [2.2.2] Procuras
 
@@ -286,17 +279,19 @@
     "Given a state, a parent-state hashmap and a parent-action hashmap returns a list of actions to state"
     (let ((action-list nil)
            (temp-action nil)
-           (temp-sate nil))
+           (temp-state state))
 
-    (setf temp-action (gethash state parent-action))
-    (if (equalp parent-action nil) (return-from actions-to-state nil)) ; passed state is initial state
-    (setf action-list (list temp-action)) ; add first action to list
-
+    (setf temp-action (gethash temp-state parent-action))
+    (if (equalp temp-action nil) (return-from actions-to-state nil)) ; passed state is initial state
+    
     (loop
-        (print temp-sate)
-        (setf temp-sate (gethash state parent-state))
-        (if (equalp temp-sate nil) (return-from actions-to-state action-list)) ; reached intial state
-        (setf action-list (append (list (gethash state parent-action)) action-list)))))
+
+        (if (equalp temp-action nil) (return-from actions-to-state action-list)) ; reached intial state
+        (setf action-list (append (list temp-action) action-list)) ; add action to actions list
+
+        ;; Update temp-state and temp-action values
+        (setf temp-state (gethash temp-state parent-state))
+        (setf temp-action (gethash temp-state parent-action)))))
 
 (defun procura-pp (problem)
     (let* ((curr-state (problema-estado-inicial problem))
@@ -312,7 +307,7 @@
                 
                 (setf curr-state (first open)) ; get first state from open states list
                 (setf open (rest open))        ; remove element from list
-                (if (solucao curr-state) (return (actions-to-state curr-state parent-state parent-action))) ; end state reached, return solution
+                (if (funcall (problema-solucao problem) curr-state) (return (actions-to-state curr-state parent-state parent-action))) ; end state reached, return solution
                 ;; TODO: move into a separate function ? 
                 (cond 
                     ((not (gethash curr-state closed))  ; if current state hasn't been visited before
@@ -367,8 +362,8 @@
 
 ;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
-;;;(load "utils.fas")           ; line 1
-(load "../libs/utils.lisp")     ; line 2
+(load "utils.fas")           ; line 1
+;;;(load "../libs/utils.lisp")     ; line 2
 
 ;;; Possible piece configurations
 (defconstant piece-i-confs (list peca-i0 peca-i1))
