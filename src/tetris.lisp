@@ -28,6 +28,10 @@
 (setf (gethash 4 *score*) 800)
 
 
+;;; piece to piece-conf hash table (populated at the end of the file)
+(defparameter *piece-confs* (make-hash-table))
+
+
 ;;; Acao [2.2.1]
 
 (defun cria-accao (leftmost-col piece)
@@ -157,53 +161,15 @@
 (defun accoes (state)
     (let* (
         (actions (list)) ; stores the resulting list of actions
+        )
 
-        (add-piece-i-actions #'(lambda ()
-            (setf actions (append actions (generate-piece-actions peca-i0)))
-            (setf actions (append actions (generate-piece-actions peca-i1)))))
+        ;; return empty list if this is a terminal state
+        (if (estado-final-p state) (return-from accoes nil))
 
-        (add-piece-l-actions #'(lambda ()
-            (setf actions (append actions (generate-piece-actions peca-l0)))
-            (setf actions (append actions (generate-piece-actions peca-l1)))
-            (setf actions (append actions (generate-piece-actions peca-l2)))
-            (setf actions (append actions (generate-piece-actions peca-l3)))))
-
-        (add-piece-j-actions #'(lambda ()
-            (setf actions (append actions (generate-piece-actions peca-j0)))
-            (setf actions (append actions (generate-piece-actions peca-j1)))
-            (setf actions (append actions (generate-piece-actions peca-j2)))
-            (setf actions (append actions (generate-piece-actions peca-j3)))))
-
-        (add-piece-o-actions #'(lambda ()
-            (setf actions (append actions (generate-piece-actions peca-o0)))))
-
-        (add-piece-s-actions #'(lambda ()
-            (setf actions (append actions (generate-piece-actions peca-s0)))
-            (setf actions (append actions (generate-piece-actions peca-s1)))))
-
-        (add-piece-z-actions #'(lambda ()
-            (setf actions (append actions (generate-piece-actions peca-z0)))
-            (setf actions (append actions (generate-piece-actions peca-z1)))))
-
-        (add-piece-t-actions #'(lambda ()
-            (setf actions (append actions (generate-piece-actions peca-t0)))
-            (setf actions (append actions (generate-piece-actions peca-t1)))
-            (setf actions (append actions (generate-piece-actions peca-t2)))
-            (setf actions (append actions (generate-piece-actions peca-t3))))))
-
-        ;; Go through the list of "pieces to be placed" and append the
-        ;; available actions for each one of them
-        (dolist (piece (estado-pecas-por-colocar state))
-            (cond
-
-                ((equalp piece piece-i) (funcall add-piece-i-actions))
-                ((equalp piece piece-j) (funcall add-piece-j-actions))
-                ((equalp piece piece-l) (funcall add-piece-l-actions))
-                ((equalp piece piece-o) (funcall add-piece-o-actions))
-                ((equalp piece piece-s) (funcall add-piece-s-actions))
-                ((equalp piece piece-z) (funcall add-piece-z-actions))
-                ((equalp piece piece-t) (funcall add-piece-t-actions))
-                (t nil)))
+        ;; create actions for the next piece
+        (let ((piece (first (estado-pecas-por-colocar state))))
+            (dolist (p (gethash piece *piece-confs*))
+                (setf actions (append actions (generate-piece-actions p)))))
             actions))
 
 (defun solucao (state)
@@ -239,7 +205,7 @@
         (tab (estado-Tabuleiro state-copy))
         (tab-arr (tabuleiro->array tab))
         ; TODO: run through the piece and determine the highest column
-        (column-height) 
+        (column-height)
         (piece-lines (1- (nth 0 (array-dimensions piece))))
         (piece-columns (1- (nth 1 (array-dimensions piece))))
         (tab-num-of-lines (tabuleiro-num-of-rows tab))
@@ -273,9 +239,9 @@
                         (tab-col-index (+ column j)))
                         (if (>= tab-col-index tab-num-of-cols) (loop-finish))
                         ;; Only place the piece part if the position is free (to avoid overriden pieces)
-                        (if (equalp (aref tab-arr tab-line-index tab-col-index) nil) 
+                        (if (equalp (aref tab-arr tab-line-index tab-col-index) nil)
                             (setf (aref tab-arr tab-line-index tab-col-index) (aref piece i j)))))))
-                        
+
 
         ;; Update tab
         (setf tab (array->tabuleiro tab-arr))
@@ -354,3 +320,21 @@
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
 ;;;(load "utils.fas")           ; line 1
 (load "../libs/utils.lisp")     ; line 2
+
+;;; Possible piece configurations
+(defconstant piece-i-confs (list peca-i0 peca-i1))
+(defconstant piece-l-confs (list peca-l0 peca-l1 peca-l2 peca-l3))
+(defconstant piece-j-confs (list peca-j0 peca-j1 peca-j2 peca-j3))
+(defconstant piece-o-confs (list peca-o0))
+(defconstant piece-s-confs (list peca-s0 peca-s1))
+(defconstant piece-z-confs (list peca-z0 peca-z1))
+(defconstant piece-t-confs (list peca-t0 peca-t1 peca-t2 peca-t3))
+
+;;; piece to piece-conf hash table
+(setf (gethash piece-i *piece-confs*) piece-i-confs)
+(setf (gethash piece-l *piece-confs*) piece-l-confs)
+(setf (gethash piece-j *piece-confs*) piece-j-confs)
+(setf (gethash piece-o *piece-confs*) piece-o-confs)
+(setf (gethash piece-s *piece-confs*) piece-s-confs)
+(setf (gethash piece-z *piece-confs*) piece-z-confs)
+(setf (gethash piece-t *piece-confs*) piece-t-confs)
