@@ -413,6 +413,9 @@
 	)
 )
 
+;;;
+(defun procura-best(
+
 
 (defun numHoles(board col)
   
@@ -450,3 +453,32 @@
   
   
 )
+
+(defun calcuate-worth(board pieces) 
+
+
+
+)
+
+
+;;;2.2.2 Procuras:procura~-best
+
+(defun procura-best(board pieces)
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+)
+
+
