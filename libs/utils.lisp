@@ -98,7 +98,9 @@
       (desenha-linha tabuleiro linha) (format T "~%"))
     (desenha-linha-exterior)))
 
-(defun desenha-tabuleiro (tabuleiro )
+;;; desenha-tabuleiro : tabuleiro --> {}
+;;; funcao que recebe um tabuleiro e desenha o tabuleiro com as respetivas pecas colocadas no ecra
+(defun desenha-tabuleiro (tabuleiro)
     (desenha-linha-exterior) (format T "~%" )
     (do ((linha 16 (- linha 1))) ((< linha 0))
       (desenha-linha tabuleiro linha) (format T "~%"))
