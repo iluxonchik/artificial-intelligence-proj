@@ -239,7 +239,7 @@
         (tab (estado-Tabuleiro state-copy))
         (tab-arr (tabuleiro->array tab))
         ; TODO: run through the piece and determine the highest column
-        (column-height) 
+        (column-height)
         (piece-lines (1- (nth 0 (array-dimensions piece))))
         (piece-columns (1- (nth 1 (array-dimensions piece))))
         (tab-num-of-lines (tabuleiro-num-of-rows tab))
@@ -273,9 +273,9 @@
                         (tab-col-index (+ column j)))
                         (if (>= tab-col-index tab-num-of-cols) (loop-finish))
                         ;; Only place the piece part if the position is free (to avoid overriden pieces)
-                        (if (equalp (aref tab-arr tab-line-index tab-col-index) nil) 
+                        (if (equalp (aref tab-arr tab-line-index tab-col-index) nil)
                             (setf (aref tab-arr tab-line-index tab-col-index) (aref piece i j)))))))
-                        
+
 
         ;; Update tab
         (setf tab (array->tabuleiro tab-arr))
@@ -328,7 +328,7 @@
             (parent-action (make-hash-table :test #'equalp)) ; parent action of a state
             (f (make-hash-table :test #'equalp)) ; f function of a state
             (g (make-hash-table :test #'equalp)) ; g function of a state
-            (h (make-hash-table :test #'equalp)) ; h function of a state
+            ;(h (make-hash-table :test #'equalp)) ; h function of a state
             (state-actions nil)
             (child-state nil)
             ; this does not work :(   \/
@@ -337,8 +337,12 @@
             ;(resultado (problema-resultado problem))  ; funcao resultado do problema
             ;(custo (problema-custo-caminho problem))  ; funcao custo-caminho do problema
             (temp-g 0)
-            (temp-h 0)
+            (temp-h (funcall heuristic curr-state))
         )
+        ; initialize f and g for the initial state
+        (setf (gethash curr-state g) temp-g )
+        (setf (gethash curr-state f) (+ temp-g temp-h) )
+
         (loop ; while solution not found
             (if (null open) (return nil)) ; no solution found
 
@@ -349,7 +353,23 @@
 
             (setf curr-state (first open)) ; the first state from queue
             (setf open (rest open)) ; remove element from queue
-            (if (funcall (problema-solucao problem) curr-state) (return nil)) ; TODO: create list of actions
+
+            (if (funcall (problema-solucao problem) curr-state) ; if solution found
+                (let* (
+                        (solution-action-list (list))
+                        (action)
+                    )
+                    (loop  ; create list of actions leading to solution
+                        (setf action (gethash curr-state parent-action)) ; get parent action
+                        (if (null action) (return solution-action-list)) ; if null, we're at the initial state
+
+                        (setf solution-action-list ; put the action at the begining of the list
+                            (append (list action) solution-action-list)
+                        )
+                        (setf curr-state (gethash curr-state parent-state)) ; get parent state
+                    )
+                )
+            )
 
             (if (not (gethash curr-state closed)) ; if not already visited
                 (progn
@@ -359,23 +379,27 @@
                     ; foreach action a in state-actions
                     (dolist (a state-actions)
                         (setf child-state (funcall (problema-resultado problem) curr-state a)) ; apply action to state
-                        (setf open (append (list child-state) open)) ; append to beggining of list.
-                        ; /\ Como usamos stable sort, se dois estados tiverem
-                        ;    f igual vai ser selecionado o ultimo a entrar, ou seja,
-                        ;    o que esta' mais perto do inicio da lista.
+                        (if (not (gethash child-state closed)) ; if not already visited
+                            (progn
+                            ; TODO: check if its already in the open list?
+                            (setf open (append (list child-state) open)) ; append to beggining of list.
+                            ; /\ Como usamos stable sort, se dois estados tiverem
+                            ;    f igual vai ser selecionado o ultimo a entrar, ou seja,
+                            ;    o que esta' mais perto do inicio da lista.
 
-                        (setf (gethash child-state parent-state) curr-state) ; register parent state
-                        (setf (gethash child-state parent-action) a) ; register parent action
+                            (setf (gethash child-state parent-state) curr-state) ; register parent state
+                            (setf (gethash child-state parent-action) a) ; register parent action
 
-                        ; calculate g, h, and f
-                        (setf temp-g (funcall (problema-custo-caminho problem) child-state)) ; calculate g
-                        (setf (gethash child-state g) temp-g) ; store g
+                            ; calculate g, h, and f
+                            (setf temp-g (funcall (problema-custo-caminho problem) child-state)) ; calculate g
+                            (setf (gethash child-state g) temp-g) ; store g
 
-                        (setf temp-h (funcall heuristic child-state)) ; calculate h
-                        (setf (gethash child-state h) temp-h) ; store h
+                            (setf temp-h (funcall heuristic child-state)) ; calculate h
+                            ;(setf (gethash child-state h) temp-h) ; store h
 
-                        ; store and calculate f
-                        (setf (gethash child-state f) (+ temp-g temp-h) )
+                            ; store and calculate f
+                            (setf (gethash child-state f) (+ temp-g temp-h) )
+                        ))
                     )
                 )
             )
