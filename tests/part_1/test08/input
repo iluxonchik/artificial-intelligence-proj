@@ -18,7 +18,7 @@
 (eq (estado-pecas-colocadas estado1) (estado-pecas-colocadas estado2))
 ;;deve retornar T
 (tabuleiros-iguais-p (cria-tabuleiro) (estado-tabuleiro estado2))
-;;deve retornar NIL
+;;deve retornar T
 (tabuleiros-iguais-p (estado-tabuleiro estado1) (estado-tabuleiro estado2))
 ;;deve retornar NIL
 (eq (estado-tabuleiro estado1) (estado-tabuleiro estado2))
