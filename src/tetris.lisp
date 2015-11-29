@@ -194,9 +194,8 @@
         ;; return empty list if this is a terminal state
         (if (estado-final-p state) (return-from accoes nil))
 
-        ;; Go through the list of "pieces to be placed" and append the
-        ;; available actions for each one of them
-        (dolist (piece (estado-pecas-por-colocar state))
+        ;; create actions for the next piece
+        (let ((piece (first (estado-pecas-por-colocar state))))
             (cond
 
                 ((equalp piece piece-i) (funcall add-piece-i-actions))
