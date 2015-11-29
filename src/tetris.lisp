@@ -414,7 +414,8 @@
 )
 
 ;;;
-(defun procura-best(
+(defun procura-best()
+)
 
 
 (defun numHoles(board col)
