@@ -333,8 +333,9 @@
     (let* (
             (curr-state (problema-estado-inicial problem))
             (open (list curr-state)) ; open list initially contains the start state
+            (open-hash (make-hash-table :test #'equalp)) ; T if state is in open list
             (closed (make-hash-table :test #'equalp)) ; T if state has benn closed
-            (parent-state (make-hash-table :test #' equalp)) ; parent of a state
+            (parent-state (make-hash-table :test #'equalp)) ; parent of a state
             (parent-action (make-hash-table :test #'equalp)) ; parent action of a state
             (f (make-hash-table :test #'equalp)) ; f function of a state
             (g (make-hash-table :test #'equalp)) ; g function of a state
@@ -352,6 +353,7 @@
         ; initialize f and g for the initial state
         (setf (gethash curr-state g) temp-g )
         (setf (gethash curr-state f) (+ temp-g temp-h) )
+        (setf (gethash curr-state open-hash) t )
 
         (loop ; while solution not found
             (if (null open) (return nil)) ; no solution found
@@ -362,7 +364,7 @@
             )
 
             (setf curr-state (first open)) ; the first state from queue
-            (setf open (rest open)) ; remove element from queue
+;(format t "loop ~S~%" curr-state)
 
             (if (funcall (problema-solucao problem) curr-state) ; if solution found
                 (let* (
@@ -381,18 +383,19 @@
                 )
             )
 
-            (if (not (gethash curr-state closed)) ; if not already visited
-                (progn
-                    (setf (gethash curr-state closed) t) ; mark state as visited
+            (setf open (rest open)) ; remove element from queue
+            (setf (gethash curr-state closed) t) ; mark state as visited
+            (setf (gethash curr-state open-hash) nil )
 
-                    (setf state-actions (funcall (problema-accoes problem) curr-state)) ; gen possible actions
-                    ; foreach action a in state-actions
-                    (dolist (a state-actions)
-                        (setf child-state (funcall (problema-resultado problem) curr-state a)) ; apply action to state
-                        (if (not (gethash child-state closed)) ; if not already visited
-                            (progn
-                            ; TODO: check if its already in the open list?
+            (setf state-actions (funcall (problema-accoes problem) curr-state)) ; gen possible actions
+            (dolist (a state-actions) ; foreach action a in state-actions
+                (setf child-state (funcall (problema-resultado problem) curr-state a)) ; apply action to state
+                (if (not (gethash child-state closed)) ; if not already visited
+                    (progn
+                    (if (not (gethash child-state open-hash)) ; if not already in open list
+                        (progn
                             (setf open (append (list child-state) open)) ; append to beggining of list.
+                            (setf (gethash child-state open-hash) t )
                             ; /\ Como usamos stable sort, se dois estados tiverem
                             ;    f igual vai ser selecionado o ultimo a entrar, ou seja,
                             ;    o que esta' mais perto do inicio da lista.
@@ -409,15 +412,13 @@
 
                             ; store and calculate f
                             (setf (gethash child-state f) (+ temp-g temp-h) )
-                        ))
+                        )
                     )
-                )
+                ))
             )
-
         )
     )
 )
-
 
 ;;; Utils
 (defun copy-array (arr)
