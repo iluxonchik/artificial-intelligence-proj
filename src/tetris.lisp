@@ -113,10 +113,10 @@
             (t nil))))
 
 (defun tabuleiro-num-of-cols(tab)
-    (nth 1 (array-dimensions tab)))
+    (nth 1 (array-dimensions (tabuleiro->array tab))))
 
 (defun tabuleiro-num-of-rows(tab)
-    (nth 0 (array-dimensions tab)))
+    (nth 0 (array-dimensions (tabuleiro->array tab))))
 
 (defun tabuleiros-iguais-p(tab1 tab2)
     (equalp tab1 tab2))
