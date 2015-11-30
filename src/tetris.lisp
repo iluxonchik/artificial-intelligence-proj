@@ -98,8 +98,8 @@
                     (t(setf x (1- x)))))))))
 
 (defun tabuleiro-remove-linha!(tab rowN)
-    (let ((num-of-cols (tabuleiro-num-of-cols tab))
-          (num-of-rows (tabuleiro-num-of-rows tab))
+    (let ((num-of-cols 10)
+          (num-of-rows 18)
           (upper-rowN (+ rowN 1))
          )
         (cond
@@ -112,11 +112,6 @@
                 (tabuleiro-remove-linha! tab upper-rowN))
             (t nil))))
 
-(defun tabuleiro-num-of-cols(tab)
-    (nth 1 (array-dimensions tab)))
-
-(defun tabuleiro-num-of-rows(tab)
-    (nth 0 (array-dimensions tab)))
 
 (defun tabuleiros-iguais-p(tab1 tab2)
     (equalp tab1 tab2))
@@ -160,7 +155,7 @@
 
 (defun accoes (state)
     (let ((actions (list))) ; stores the resulting list of actions
-        
+
         ;; return empty list if this is a terminal state
         (if (estado-final-p state) (return-from accoes nil))
 
@@ -203,8 +198,8 @@
         (column-height)
         (piece-lines (1- (nth 0 (array-dimensions piece))))
         (piece-columns (1- (nth 1 (array-dimensions piece))))
-        (tab-num-of-lines (tabuleiro-num-of-rows tab))
-        (tab-num-of-cols (tabuleiro-num-of-cols tab)))
+        (tab-num-of-lines 18)
+        (tab-num-of-cols 10))
 
         ;; Decide the column-height to use
         (let ((line-val (list)) (max-line-val-index 0) (max-val 0))
@@ -285,7 +280,7 @@
 
     (setf temp-action (gethash temp-state parent-action))
     (if (equalp temp-action nil) (return-from actions-to-state nil)) ; passed state is initial state
-    
+
     (loop
 
         (if (equalp temp-action nil) (return-from actions-to-state action-list)) ; reached intial state
@@ -306,15 +301,15 @@
 
            (loop
                 (if (null open) (return nil))  ; no solution found, return empty list
-                
+
                 (setf curr-state (first open)) ; get first state from open states list
                 (setf open (rest open))        ; remove element from list
                 (if (funcall (problema-solucao problem) curr-state) (return (actions-to-state curr-state parent-state parent-action))) ; end state reached, return solution
-                ;; TODO: move into a separate function ? 
-                (cond 
+                ;; TODO: move into a separate function ?
+                (cond
                     ((not (gethash curr-state closed))  ; if current state hasn't been visited before
                         (setf (gethash curr-state closed) t) ; mark current state as visited
-                        
+
                         (setf state-actions (funcall (problema-accoes problem) curr-state))
                         ;; foreach(action a in actions)
                         (dolist (a state-actions)
@@ -322,7 +317,7 @@
                             (setf open (append (list child-state) open)) ; LIFO
                             (setf (gethash child-state parent-state) curr-state) ; register parent state of new state
                             (setf (gethash child-state parent-action) a))) ; register parent action of new state
-                        
+
                     (t t)))))
 
 (defun procura-best(board pieces)
