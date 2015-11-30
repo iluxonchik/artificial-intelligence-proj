@@ -374,10 +374,12 @@
         (setf i (+ 1 i)))
       (return-from bumpiness bump)))
 
-(defun compute-score(board)
-    (return-from compute-score (+ (* -0.510066 (aggregateHeight board)) (* 0.760666 (completeLines board))
-    (* -0.35663 (numHoles board)) (* -0.184483 (bumpiness board)))))
+(defun compute-score(state)
+    (return-from calculate-worth (+ (* 1 (aggregateHeight (estado-Tabuleiro state))) (* 1 (completeLines (estado-Tabuleiro state)))
+    (* 1 (numHoles (estado-Tabuleiro state))) (* 1 (bumpiness (estado-Tabuleiro state)))
 
+    ))
+)
 
 ;;; Utils
 
