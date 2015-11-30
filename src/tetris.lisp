@@ -131,10 +131,10 @@
 ;;; Estado [2.1.3]
 
 (defstruct estado
-    pontos
+    (pontos 0)
     pecas-por-colocar   ; list ordered by exit order  | legal values: i,j,l,o,s,z,t
     pecas-colocadas     ; list ordered by most recent | legal values: i,j,l,o,s,z,t
-    Tabuleiro)
+    (Tabuleiro (cria-tabuleiro)))
 
 (defun copia-estado (state)
     (make-estado :pontos (estado-pontos state) :pecas-por-colocar (copy-list (estado-pecas-por-colocar state)) :pecas-colocadas
@@ -160,7 +160,7 @@
 
 (defun accoes (state)
     (let ((actions (list))) ; stores the resulting list of actions
-        
+
         ;; return empty list if this is a terminal state
         (if (estado-final-p state) (return-from accoes nil))
 
@@ -283,7 +283,7 @@
 
     (setf temp-action (gethash temp-state parent-action))
     (if (equalp temp-action nil) (return-from actions-to-state nil)) ; passed state is initial state
-    
+
     (loop
 
         (if (equalp temp-action nil) (return-from actions-to-state action-list)) ; reached intial state
@@ -304,15 +304,15 @@
 
            (loop
                 (if (null open) (return nil))  ; no solution found, return empty list
-                
+
                 (setf curr-state (first open)) ; get first state from open states list
                 (setf open (rest open))        ; remove element from list
                 (if (funcall (problema-solucao problem) curr-state) (return (actions-to-state curr-state parent-state parent-action))) ; end state reached, return solution
-                ;; TODO: move into a separate function ? 
-                (cond 
+                ;; TODO: move into a separate function ?
+                (cond
                     ((not (gethash curr-state closed))  ; if current state hasn't been visited before
                         (setf (gethash curr-state closed) t) ; mark current state as visited
-                        
+
                         (setf state-actions (funcall (problema-accoes problem) curr-state))
                         ;; foreach(action a in actions)
                         (dolist (a state-actions)
@@ -320,7 +320,7 @@
                             (setf open (append (list child-state) open)) ; LIFO
                             (setf (gethash child-state parent-state) curr-state) ; register parent state of new state
                             (setf (gethash child-state parent-action) a))) ; register parent action of new state
-                        
+
                     (t t)))))
 
 ;;; Utils
