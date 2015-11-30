@@ -463,14 +463,9 @@
   
 )
 
-(defun calculate-worth(board) 
-	(return-from calculate-worth (+ (* 1 (aggregateHeight board)) (* 1 (completeLines board)) 
-	(* 1 (numHoles board)) (* 1 (bumpiness board))  
-
-	))
-
-
-)
+(defun compute-score(board) 
+	(return-from calculate-worth (+ (* -0.510066 (aggregateHeight board)) (* 0.760666 (completeLines board)) 
+	(* -0.35663 (numHoles board)) (* -0.184483 (bumpiness board)))))
 
 
 ;;;2.2.2 Procuras:procura~-best
