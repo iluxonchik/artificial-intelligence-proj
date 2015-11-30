@@ -480,30 +480,51 @@
 
 (defun procura-best(board pieces)
 
-	(let 
+	(let *
 		((start-state (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board)) 
-
+		(solvableProblem (make-problema :estado-inicial start-state 
+										:solucao #'solucao :accoes #'accoes
+										:resultado #'resultado :custo-caminho #'(lambda (x) 0)))
+		(current-state start-state)
+		
 		
 
 
-
 		)
-
+	(procura-pp solvableProblem)
 
 	)
-	
-
-
-
-
-
-
-
-
-
-
-
-
 )
+
+
+(defun procura-pp (problem)
+    (let* ((curr-state (problema-estado-inicial problem))
+           (open (list curr-state)) ; open list, intially contains the start state
+           (closed (make-hash-table :test #'equalp)) ; T if state has been closed
+           (parent-state (make-hash-table :test #'equalp)) ; parent of a state
+           (parent-action (make-hash-table :test #'equalp)) ; parent action of a state
+           (state-actions nil)
+           (child-state nil))
+
+           (loop
+                (if (null open) (return nil))  ; no solution found, return empty list
+                
+                (setf curr-state (first open)) ; get first state from open states list
+                (setf open (rest open))        ; remove element from list
+                (if (funcall (problema-solucao problem) curr-state) (return (actions-to-state curr-state parent-state parent-action))) ; end state reached, return solution
+                ;; TODO: move into a separate function ? 
+                (cond 
+                    ((not (gethash curr-state closed))  ; if current state hasn't been visited before
+                        (setf (gethash curr-state closed) t) ; mark current state as visited
+                        
+                        (setf state-actions (funcall (problema-accoes problem) curr-state))
+                        ;; foreach(action a in actions)
+                        (dolist (a state-actions)
+                            (setf child-state (funcall (problema-resultado problem) curr-state a)) ; apply action to state
+                            (setf open (append (list child-state) open)) ; LIFO
+                            (setf (gethash child-state parent-state) curr-state) ; register parent state of new state
+                            (setf (gethash child-state parent-action) a))) ; register parent action of new state
+                        
+                    (t t)))))
 
 
