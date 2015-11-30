@@ -365,8 +365,8 @@
 
 ;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
-(load "utils.fas")           ; line 1
-;;;(load "../libs/utils.lisp")     ; line 2
+;;;(load "utils.fas")           ; line 1
+(load "../libs/utils.lisp")     ; line 2
 
 ;;; Possible piece configurations
 (defconstant piece-i-confs (list peca-i0 peca-i1))
@@ -386,94 +386,57 @@
 (setf (gethash piece-z *piece-confs*) piece-z-confs)
 (setf (gethash piece-t *piece-confs*) piece-t-confs)
 
+
+;;; Heuristic Functions
 (defun aggregateHeight(board)
-	(let ((height 0) (maxCol (tabuleiro-num-of-cols board)) (i 0))
-		(loop while (< i maxCol) do
-			(setf height (+ height (tabuleiro-altura-coluna board i)))
-			(setf i (1+ i))
-		)
-		(return-from aggregateHeight height)
-	)
-)
+    (let ((height 0) (maxCol (tabuleiro-num-of-cols board)) (i 0))
+        (loop while (< i maxCol) do
+            (setf height (+ height (tabuleiro-altura-coluna board i)))
+            (setf i (1+ i)))
+        (return-from aggregateHeight height)))
 
 (defun completeLines(board)
-
-	(let ((numCompLines 0) 
-		  (maxLine (tabuleiro-num-of-rows board))
-		  (i 0))
-		(loop while (< i maxLine) do
-			(cond 
-				((tabuleiro-linha-completa-p board i) (setf numCompLines (1+ numCompLines) ) (setf i (1+ i)))
-				(t (setf i (1+ i)))
-			)
-		
-		
-		)
-		(return-from completeLines numCompLines)
-
-	)
-)
-
-
-
+    (let ((numCompLines 0) 
+          (maxLine (tabuleiro-num-of-rows board))
+          (i 0))
+        (loop while (< i maxLine) do
+            (cond 
+                ((tabuleiro-linha-completa-p board i) (setf numCompLines (1+ numCompLines) ) (setf i (1+ i)))
+                (t (setf i (1+ i)))))
+        (return-from completeLines numCompLines)))
 
 (defun numHolesCol(board col)
-  
-	(let (
-		  (i 0) (holecount 0)(height (tabuleiro-altura-coluna board col)))
-	  		(loop while(< i height) do
-				(cond
-				  
-				  ((not (tabuleiro-preenchido-p board i col)) (setf holecount (1+ holecount)) (setf i (1+ i)))
-				  (t (setf i (1+ i)))
-				  )		  
-				  
-				  
-		)
-
-		(return-from numHolesCol holecount)
-	)
-)
+    (let ((i 0) (holecount 0)(height (tabuleiro-altura-coluna board col)))
+            (loop while(< i height) do
+                (cond
+                  
+                  ((not (tabuleiro-preenchido-p board i col)) (setf holecount (1+ holecount)) (setf i (1+ i)))
+                  (t (setf i (1+ i)))))
+            (return-from numHolesCol holecount)))
 
 (defun numHoles(board)
-	(let ((i 0) (holeCount 0) (maxCol (tabuleiro-num-of-cols board )))
-		(loop while(< i maxCol) do
-			(setf holeCount (+ holeCount (numHolesCol board i)))
-			(setf i (1+ i))		
-		)
-	(return-from numHoles holeCount)
-
-	)
-
-)
+    (let ((i 0) (holeCount 0) (maxCol (tabuleiro-num-of-cols board )))
+        (loop while(< i maxCol) do
+            (setf holeCount (+ holeCount (numHolesCol board i)))
+            (setf i (1+ i)))
+        (return-from numHoles holeCount)))
 
 
 (defun bumpiness(board)
-	(let ((i 1) (bump 0) (maxCol (tabuleiro-num-of-cols board)))
-	  (loop while(< i  maxCol) do 
-		(setf bump (+ bump (abs (- (tabuleiro-altura-coluna board (1- i)) (tabuleiro-altura-coluna board  i) ))))	
-		(setf i (+ 1 i))
-			
-		)
-	 (return-from bumpiness bump) 
-	  
-	)  
-  
-  
-  
-)
+    (let ((i 1) (bump 0) (maxCol (tabuleiro-num-of-cols board)))
+      (loop while(< i  maxCol) do 
+        (setf bump (+ bump (abs (- (tabuleiro-altura-coluna board (1- i)) (tabuleiro-altura-coluna board  i) ))))   
+        (setf i (+ 1 i)))
+      (return-from bumpiness bump)))
 
 (defun compute-score(board) 
-	(return-from calculate-worth (+ (* -0.510066 (aggregateHeight board)) (* 0.760666 (completeLines board)) 
-	(* -0.35663 (numHoles board)) (* -0.184483 (bumpiness board)))))
+    (return-from calculate-worth (+ (* -0.510066 (aggregateHeight board)) (* 0.760666 (completeLines board)) 
+    (* -0.35663 (numHoles board)) (* -0.184483 (bumpiness board)))))
 
 
 ;;;2.2.2 Procuras:procura~-best
 
 (defun procura-best(board pieces)
-
-	(return-from procura-best (procura-pp (make-problema :estado-inicial (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board ) 
-										:solucao #'solucao :accoes #'accoes
-										:resultado #'resultado :custo-caminho #'calculate-worth)))
-)
-
+    (return-from procura-best (procura-pp (make-problema :estado-inicial (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board ) 
+                                        :solucao #'solucao :accoes #'accoes
+                                        :resultado #'resultado :custo-caminho #'calculate-worth))))
