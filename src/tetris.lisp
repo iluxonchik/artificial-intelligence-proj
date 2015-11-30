@@ -98,8 +98,8 @@
                     (t(setf x (1- x)))))))))
 
 (defun tabuleiro-remove-linha!(tab rowN)
-    (let ((num-of-cols (tabuleiro-num-of-cols tab))
-          (num-of-rows (tabuleiro-num-of-rows tab))
+    (let ((num-of-cols 10)
+          (num-of-rows 18)
           (upper-rowN (+ rowN 1))
          )
         (cond
@@ -112,11 +112,6 @@
                 (tabuleiro-remove-linha! tab upper-rowN))
             (t nil))))
 
-(defun tabuleiro-num-of-cols(tab)
-    (nth 1 (array-dimensions tab)))
-
-(defun tabuleiro-num-of-rows(tab)
-    (nth 0 (array-dimensions tab)))
 
 (defun tabuleiros-iguais-p(tab1 tab2)
     (equalp tab1 tab2))
@@ -203,8 +198,8 @@
         (column-height)
         (piece-lines (1- (nth 0 (array-dimensions piece))))
         (piece-columns (1- (nth 1 (array-dimensions piece))))
-        (tab-num-of-lines (tabuleiro-num-of-rows tab))
-        (tab-num-of-cols (tabuleiro-num-of-cols tab)))
+        (tab-num-of-lines 18)
+        (tab-num-of-cols 10))
 
         ;; Decide the column-height to use
         (let ((line-val (list)) (max-line-val-index 0) (max-val 0))
