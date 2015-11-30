@@ -1,10 +1,7 @@
 ;;;; Grupo 49: Illya Gerasymchuk (78134), Nuno Silva (78454), Jorge Heleno (79042) ;;;;
 ;;;; Tetris source file
 
-;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
-;;; Uncomment Line 2 AND comment line 1 (below) when using locally
-;;;(load "utils.fas")           ; line 1
-;;;(load "../libs/utils.lisp")     ; line 2
+
 
 ;;; Pieces
 (defconstant piece-i 'i)
@@ -413,10 +410,6 @@
 	)
 )
 
-;;;
-(defun procura-best()
-)
-
 
 
 
@@ -480,70 +473,8 @@
 
 (defun procura-best(board pieces)
 
-	(let*
-		((start-state (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board)) 
-		(solvableProblem (make-problema :estado-inicial start-state 
+	(return-from procura-best (procura-pp (make-problema :estado-inicial (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board ) 
 										:solucao #'solucao :accoes #'accoes
-										:resultado #'resultado :custo-caminho #'(lambda (x) 0)))
-		(current-state start-state)
-		
-		
-
-
-		)
-	(procura-pp (make-problema :estado-inicial start-state 
-										:solucao #'solucao :accoes #'accoes
-										:resultado #'resultado :custo-caminho #'(lambda (x) 0))))
-
-	)
+										:resultado #'resultado :custo-caminho #'calculate-worth)))
 )
 
-
-(defun procura-pp (problem)
-    (let* ((curr-state (problema-estado-inicial problem))
-           (open (list curr-state)) ; open list, intially contains the start state
-           (closed (make-hash-table :test #'equalp)) ; T if state has been closed
-           (parent-state (make-hash-table :test #'equalp)) ; parent of a state
-           (parent-action (make-hash-table :test #'equalp)) ; parent action of a state
-           (state-actions nil)
-           (child-state nil))
-
-           (loop
-                (if (null open) (return nil))  ; no solution found, return empty list
-                
-                (setf curr-state (first open)) ; get first state from open states list
-                (setf open (rest open))        ; remove element from list
-                (if (funcall (problema-solucao problem) curr-state) (return (actions-to-state curr-state parent-state parent-action))) ; end state reached, return solution
-                ;; TODO: move into a separate function ? 
-                (cond 
-                    ((not (gethash curr-state closed))  ; if current state hasn't been visited before
-                        (setf (gethash curr-state closed) t) ; mark current state as visited
-                        
-                        (setf state-actions (funcall (problema-accoes problem) curr-state))
-                        ;; foreach(action a in actions)
-                        (dolist (a state-actions)
-                            (setf child-state (funcall (problema-resultado problem) curr-state a)) ; apply action to state
-                            (setf open (append (list child-state) open)) ; LIFO
-                            (setf (gethash child-state parent-state) curr-state) ; register parent state of new state
-                            (setf (gethash child-state parent-action) a))) ; register parent action of new state
-                        
-                    (t t)))))
-
-;; TODO: actions-to-state should be a lambda inside procura-pp
-(defun actions-to-state (state parent-state parent-action)
-    "Given a state, a parent-state hashmap and a parent-action hashmap returns a list of actions to state"
-    (let ((action-list nil)
-           (temp-action nil)
-           (temp-state state))
-
-    (setf temp-action (gethash temp-state parent-action))
-    (if (equalp temp-action nil) (return-from actions-to-state nil)) ; passed state is initial state
-    
-    (loop
-
-        (if (equalp temp-action nil) (return-from actions-to-state action-list)) ; reached intial state
-        (setf action-list (append (list temp-action) action-list)) ; add action to actions list
-
-        ;; Update temp-state and temp-action values
-        (setf temp-state (gethash temp-state parent-state))
-        (setf temp-action (gethash temp-state parent-action)))))
