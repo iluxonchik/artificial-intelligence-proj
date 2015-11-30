@@ -491,7 +491,9 @@
 
 
 		)
-	(procura-pp solvableProblem)
+	(procura-pp (make-problema :estado-inicial start-state 
+										:solucao #'solucao :accoes #'accoes
+										:resultado #'resultado :custo-caminho #'(lambda (x) 0))))
 
 	)
 )
