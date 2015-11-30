@@ -480,7 +480,7 @@
 
 (defun procura-best(board pieces)
 
-	(let *
+	(let*
 		((start-state (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board)) 
 		(solvableProblem (make-problema :estado-inicial start-state 
 										:solucao #'solucao :accoes #'accoes
@@ -527,4 +527,21 @@
                         
                     (t t)))))
 
+;; TODO: actions-to-state should be a lambda inside procura-pp
+(defun actions-to-state (state parent-state parent-action)
+    "Given a state, a parent-state hashmap and a parent-action hashmap returns a list of actions to state"
+    (let ((action-list nil)
+           (temp-action nil)
+           (temp-state state))
 
+    (setf temp-action (gethash temp-state parent-action))
+    (if (equalp temp-action nil) (return-from actions-to-state nil)) ; passed state is initial state
+    
+    (loop
+
+        (if (equalp temp-action nil) (return-from actions-to-state action-list)) ; reached intial state
+        (setf action-list (append (list temp-action) action-list)) ; add action to actions list
+
+        ;; Update temp-state and temp-action values
+        (setf temp-state (gethash temp-state parent-state))
+        (setf temp-action (gethash temp-state parent-action)))))
