@@ -122,10 +122,10 @@
     (equalp tab1 tab2))
 
 (defun tabuleiro->array(tab)
-    (copy-array tab))
+    (copy-array (tabuleiro->array tab)))
 
 (defun array->tabuleiro(tab)
-    (copy-array tab))
+    (copy-array (tabuleiro->array tab)))
 
 
 ;;; Estado [2.1.3]
