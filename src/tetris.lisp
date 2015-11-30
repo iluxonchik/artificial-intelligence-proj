@@ -321,7 +321,7 @@
                     (t t)))))
 
 (defun procura-best(board pieces)
-    (return-from procura-best (procura-pp (make-problema :estado-inicial (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board ) 
+    (return-from procura-best (procura-pp (make-problema :estado-inicial (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board )
                                         :solucao #'solucao :accoes #'accoes
                                         :resultado #'resultado :custo-caminho #'calculate-worth))))
 
@@ -329,18 +329,18 @@
 ;;; Heuristic Functions
 
 (defun aggregateHeight(board)
-    (let ((height 0) (maxCol (tabuleiro-num-of-cols board)) (i 0))
+    (let ((height 0) (maxCol 10) (i 0))
         (loop while (< i maxCol) do
             (setf height (+ height (tabuleiro-altura-coluna board i)))
             (setf i (1+ i)))
         (return-from aggregateHeight height)))
 
 (defun completeLines(board)
-    (let ((numCompLines 0) 
-          (maxLine (tabuleiro-num-of-rows board))
+    (let ((numCompLines 0)
+          (maxLine 18)
           (i 0))
         (loop while (< i maxLine) do
-            (cond 
+            (cond
                 ((tabuleiro-linha-completa-p board i) (setf numCompLines (1+ numCompLines) ) (setf i (1+ i)))
                 (t (setf i (1+ i)))))
         (return-from completeLines numCompLines)))
@@ -349,13 +349,13 @@
     (let ((i 0) (holecount 0)(height (tabuleiro-altura-coluna board col)))
             (loop while(< i height) do
                 (cond
-                  
+
                   ((not (tabuleiro-preenchido-p board i col)) (setf holecount (1+ holecount)) (setf i (1+ i)))
                   (t (setf i (1+ i)))))
             (return-from numHolesCol holecount)))
 
 (defun numHoles(board)
-    (let ((i 0) (holeCount 0) (maxCol (tabuleiro-num-of-cols board )))
+    (let ((i 0) (holeCount 0) (maxCol 10))
         (loop while(< i maxCol) do
             (setf holeCount (+ holeCount (numHolesCol board i)))
             (setf i (1+ i)))
@@ -363,14 +363,14 @@
 
 
 (defun bumpiness(board)
-    (let ((i 1) (bump 0) (maxCol (tabuleiro-num-of-cols board)))
-      (loop while(< i  maxCol) do 
-        (setf bump (+ bump (abs (- (tabuleiro-altura-coluna board (1- i)) (tabuleiro-altura-coluna board  i) ))))   
+    (let ((i 1) (bump 0) (maxCol 10))
+      (loop while(< i  maxCol) do
+        (setf bump (+ bump (abs (- (tabuleiro-altura-coluna board (1- i)) (tabuleiro-altura-coluna board  i) ))))
         (setf i (+ 1 i)))
       (return-from bumpiness bump)))
 
-(defun compute-score(board) 
-    (return-from calculate-worth (+ (* -0.510066 (aggregateHeight board)) (* 0.760666 (completeLines board)) 
+(defun compute-score(board)
+    (return-from calculate-worth (+ (* -0.510066 (aggregateHeight board)) (* 0.760666 (completeLines board))
     (* -0.35663 (numHoles board)) (* -0.184483 (bumpiness board)))))
 
 
