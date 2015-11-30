@@ -348,6 +348,7 @@
             ;(resultado (problema-resultado problem))  ; funcao resultado do problema
             ;(custo (problema-custo-caminho problem))  ; funcao custo-caminho do problema
             (temp-g 0)
+            (temp-f 0)
             (temp-h (funcall heuristic curr-state))
         )
         ; initialize f and g for the initial state
@@ -356,7 +357,7 @@
         (setf (gethash curr-state open-hash) t )
 
         (loop ; while solution not found
-            (if (null open) (return nil)) ; no solution found
+            (if (null open) (return-from procura-A* nil)) ; no solution found
 
             ; sort list of open states according to their f value
             (stable-sort open #'(lambda (x y)
@@ -384,17 +385,22 @@
             )
 
             (setf open (rest open)) ; remove element from queue
-            (setf (gethash curr-state closed) t) ; mark state as visited
             (setf (gethash curr-state open-hash) nil )
 
             (setf state-actions (funcall (problema-accoes problem) curr-state)) ; gen possible actions
             (dolist (a state-actions) ; foreach action a in state-actions
                 (setf child-state (funcall (problema-resultado problem) curr-state a)) ; apply action to state
-                (if (not (gethash child-state closed)) ; if not already visited
+                (setf temp-g (funcall (problema-custo-caminho problem) child-state)) ; calculate g
+                (setf temp-h (funcall heuristic child-state)) ; calculate h
+                (setf temp-f (+ temp-g temp-h) ) ; calculate f
+
+                (if (or (not (gethash child-state closed)) (< temp-f (gethash child-state f))) ; if (not already visited) or (visited but better)
                     (progn
-                    (if (not (gethash child-state open-hash)) ; if not already in open list
+                    (if (or (not (gethash child-state open-hash)) (< temp-f (gethash child-state f))) ; if (not already in open list) or (open but better)
                         (progn
-                            (setf open (append (list child-state) open)) ; append to beggining of list.
+                            (if (not (gethash child-state open-hash))
+                                (setf open (append (list child-state) open)) ; append to beggining of list.
+                            )
                             (setf (gethash child-state open-hash) t )
                             ; /\ Como usamos stable sort, se dois estados tiverem
                             ;    f igual vai ser selecionado o ultimo a entrar, ou seja,
@@ -403,19 +409,18 @@
                             (setf (gethash child-state parent-state) curr-state) ; register parent state
                             (setf (gethash child-state parent-action) a) ; register parent action
 
-                            ; calculate g, h, and f
-                            (setf temp-g (funcall (problema-custo-caminho problem) child-state)) ; calculate g
                             (setf (gethash child-state g) temp-g) ; store g
 
-                            (setf temp-h (funcall heuristic child-state)) ; calculate h
                             ;(setf (gethash child-state h) temp-h) ; store h
 
-                            ; store and calculate f
-                            (setf (gethash child-state f) (+ temp-g temp-h) )
+                            ; store f
+                            (setf (gethash child-state f) temp-f )
                         )
                     )
                 ))
             )
+
+            (setf (gethash curr-state closed) t) ; mark state as visited
         )
     )
 )
