@@ -323,7 +323,7 @@
 (defun procura-best(board pieces)
     (return-from procura-best (procura-pp (make-problema :estado-inicial (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board )
                                         :solucao #'solucao :accoes #'accoes
-                                        :resultado #'resultado :custo-caminho #'calculate-worth))))
+                                        :resultado #'resultado :custo-caminho #'compute-score))))
 
 
 ;;; Heuristic Functions
@@ -370,7 +370,7 @@
       (return-from bumpiness bump)))
 
 (defun compute-score(board)
-    (return-from calculate-worth (+ (* -0.510066 (aggregateHeight board)) (* 0.760666 (completeLines board))
+    (return-from compute-score (+ (* -0.510066 (aggregateHeight board)) (* 0.760666 (completeLines board))
     (* -0.35663 (numHoles board)) (* -0.184483 (bumpiness board)))))
 
 
