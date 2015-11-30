@@ -2,3 +2,6 @@
 *.lib
 *.fas
 *.fasm
+
+# test output
+*.out

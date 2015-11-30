@@ -18,7 +18,7 @@ NIL
 NIL
 ;;deve retornar T
 T
-;;deve retornar NIL
-NIL
+;;deve retornar T
+T
 ;;deve retornar NIL
 NIL
