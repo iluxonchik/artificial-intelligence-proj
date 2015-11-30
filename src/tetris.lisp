@@ -29,10 +29,8 @@
 (setf (gethash 3 *score*) 500)
 (setf (gethash 4 *score*) 800)
 
-
 ;;; piece to piece-conf hash table (populated at the end of the file)
 (defparameter *piece-confs* (make-hash-table))
-
 
 ;;; Acao [2.2.1]
 
@@ -275,6 +273,7 @@
 
         state-copy)) ; return the updated state
 
+
 ;;; [2.2.2] Procuras
 
 ;; TODO: actions-to-state should be a lambda inside procura-pp
@@ -326,68 +325,14 @@
                         
                     (t t)))))
 
-;;; Utils
-(defun copy-array (arr)
-    "Given an array, returns a copy of it"
-    (let ((dims (array-dimensions arr)))
-        (adjust-array
-            (make-array dims :displaced-to arr) dims)))
-
-(defun generate-piece-actions (piece)
-    "Given a piece configuration generates a list of valid actions
-     for that piece"
-    (let (   ; num columns the piece spans
-            (piece-columns (nth 1 (array-dimensions piece)))
-            (table-columns 10)
-            (actions (list))
-         )
-        (dotimes (column (+ 1 (- table-columns piece-columns)))
-            (setf actions (append actions (list(cria-accao column piece)))))
-        actions))
-
-(defun getPoints(piece)
-    (cond
-        ((eq piece piece-i) piece-i-value)
-        ((eq piece piece-j) piece-j-value)
-        ((eq piece piece-l) piece-l-value)
-        ((eq piece piece-o) piece-o-value)
-        ((eq piece piece-s) piece-s-value)
-        ((eq piece piece-z) piece-z-value)
-        ((eq piece piece-t) piece-t-value)
-    (t 0)))
-
-(defun calculate-points(l1)
-    (cond
-        ((not(null (first l1)))
-            (+ (getPoints (first l1)) (calculate-points (rest l1))))
-        (t 0)))
-
-
-;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
-;;; Uncomment Line 2 AND comment line 1 (below) when using locally
-;;;(load "utils.fas")           ; line 1
-(load "../libs/utils.lisp")     ; line 2
-
-;;; Possible piece configurations
-(defconstant piece-i-confs (list peca-i0 peca-i1))
-(defconstant piece-l-confs (list peca-l0 peca-l1 peca-l2 peca-l3))
-(defconstant piece-j-confs (list peca-j0 peca-j1 peca-j2 peca-j3))
-(defconstant piece-o-confs (list peca-o0))
-(defconstant piece-s-confs (list peca-s0 peca-s1))
-(defconstant piece-z-confs (list peca-z0 peca-z1))
-(defconstant piece-t-confs (list peca-t0 peca-t1 peca-t2 peca-t3))
-
-;;; piece to piece-conf hash table
-(setf (gethash piece-i *piece-confs*) piece-i-confs)
-(setf (gethash piece-l *piece-confs*) piece-l-confs)
-(setf (gethash piece-j *piece-confs*) piece-j-confs)
-(setf (gethash piece-o *piece-confs*) piece-o-confs)
-(setf (gethash piece-s *piece-confs*) piece-s-confs)
-(setf (gethash piece-z *piece-confs*) piece-z-confs)
-(setf (gethash piece-t *piece-confs*) piece-t-confs)
+(defun procura-best(board pieces)
+    (return-from procura-best (procura-pp (make-problema :estado-inicial (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board ) 
+                                        :solucao #'solucao :accoes #'accoes
+                                        :resultado #'resultado :custo-caminho #'calculate-worth))))
 
 
 ;;; Heuristic Functions
+
 (defun aggregateHeight(board)
     (let ((height 0) (maxCol (tabuleiro-num-of-cols board)) (i 0))
         (loop while (< i maxCol) do
@@ -434,9 +379,65 @@
     (* -0.35663 (numHoles board)) (* -0.184483 (bumpiness board)))))
 
 
-;;;2.2.2 Procuras:procura~-best
+;;; Utils
 
-(defun procura-best(board pieces)
-    (return-from procura-best (procura-pp (make-problema :estado-inicial (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board ) 
-                                        :solucao #'solucao :accoes #'accoes
-                                        :resultado #'resultado :custo-caminho #'calculate-worth))))
+(defun copy-array (arr)
+    "Given an array, returns a copy of it"
+    (let ((dims (array-dimensions arr)))
+        (adjust-array
+            (make-array dims :displaced-to arr) dims)))
+
+(defun generate-piece-actions (piece)
+    "Given a piece configuration generates a list of valid actions
+     for that piece"
+    (let (   ; num columns the piece spans
+            (piece-columns (nth 1 (array-dimensions piece)))
+            (table-columns 10)
+            (actions (list))
+         )
+        (dotimes (column (+ 1 (- table-columns piece-columns)))
+            (setf actions (append actions (list(cria-accao column piece)))))
+        actions))
+
+(defun getPoints(piece)
+    (cond
+        ((eq piece piece-i) piece-i-value)
+        ((eq piece piece-j) piece-j-value)
+        ((eq piece piece-l) piece-l-value)
+        ((eq piece piece-o) piece-o-value)
+        ((eq piece piece-s) piece-s-value)
+        ((eq piece piece-z) piece-z-value)
+        ((eq piece piece-t) piece-t-value)
+    (t 0)))
+
+(defun calculate-points(l1)
+    (cond
+        ((not(null (first l1)))
+            (+ (getPoints (first l1)) (calculate-points (rest l1))))
+        (t 0)))
+
+
+;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
+;;; Uncomment Line 2 AND comment line 1 (below) when using locally
+;;;(load "utils.fas")           ; line 1
+(load "../libs/utils.lisp")     ; line 2
+
+
+;;; TODO: this doesn't really belong here
+;;; Possible piece configurations (for *piece-confs* hash)
+(defconstant piece-i-confs (list peca-i0 peca-i1))
+(defconstant piece-l-confs (list peca-l0 peca-l1 peca-l2 peca-l3))
+(defconstant piece-j-confs (list peca-j0 peca-j1 peca-j2 peca-j3))
+(defconstant piece-o-confs (list peca-o0))
+(defconstant piece-s-confs (list peca-s0 peca-s1))
+(defconstant piece-z-confs (list peca-z0 peca-z1))
+(defconstant piece-t-confs (list peca-t0 peca-t1 peca-t2 peca-t3))
+
+;;; piece to piece-conf hash table (for accoes)
+(setf (gethash piece-i *piece-confs*) piece-i-confs)
+(setf (gethash piece-l *piece-confs*) piece-l-confs)
+(setf (gethash piece-j *piece-confs*) piece-j-confs)
+(setf (gethash piece-o *piece-confs*) piece-o-confs)
+(setf (gethash piece-s *piece-confs*) piece-s-confs)
+(setf (gethash piece-z *piece-confs*) piece-z-confs)
+(setf (gethash piece-t *piece-confs*) piece-t-confs)
