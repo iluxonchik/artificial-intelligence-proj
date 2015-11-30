@@ -418,7 +418,9 @@
 )
 
 
-(defun numHoles(board col)
+
+
+(defun numHolesCol(board col)
   
 	(let (
 		  (i 0) (holecount 0)(height (tabuleiro-altura-coluna board col)))
@@ -432,19 +434,28 @@
 				  
 		)
 
-		(return-from numHoles holecount)
+		(return-from numHolesCol holecount)
 	)
 )
 
+(defun numHoles(board)
+	(let ((i 0) (holeCount 0) (maxCol (tabuleiro-num-of-cols board )))
+		(loop while(< i maxCol) do
+			(setf holeCount (+ holeCount (numHolesCol board i)))
+			(setf i (1+ i))		
+		)
+	(return-from numHoles holeCount)
 
-;;;HAS BUG
+	)
+
+)
+
+
 (defun bumpiness(board)
-	(let ((i 0) (bump 0) (maxLine (tabuleiro-num-of-rows board)))
-	  (loop while(< i maxLine) do 
-		(setf bump (+ bump (- (tabuleiro-altura-coluna board i) (tabuleiro-altura-coluna board (+ i 1)) )))	
-		(setf i (1+ i))
-
-			
+	(let ((i 1) (bump 0) (maxCol (tabuleiro-num-of-cols board)))
+	  (loop while(< i  maxCol) do 
+		(setf bump (+ bump (abs (- (tabuleiro-altura-coluna board (1- i)) (tabuleiro-altura-coluna board  i) ))))	
+		(setf i (+ 1 i))
 			
 		)
 	 (return-from bumpiness bump) 
@@ -455,8 +466,11 @@
   
 )
 
-(defun calcuate-worth(board pieces) 
+(defun calculate-worth(board) 
+	(return-from calculate-worth (+ (* 1 (aggregateHeight board)) (* 1 (completeLines board)) 
+	(* 1 (numHoles board)) (* 1 (bumpiness board))  
 
+	))
 
 
 )
@@ -466,7 +480,17 @@
 
 (defun procura-best(board pieces)
 
+	(let 
+		((start-state (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board)) 
 
+		
+
+
+
+		)
+
+
+	)
 	
 
 
