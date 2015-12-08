@@ -207,7 +207,7 @@
         (tab-num-of-cols (tabuleiro-num-of-cols tab)))
 
         ;; Decide the column-height to use
-        (let ((line-val (list)) (max-line-val-index 0) (max-val 0))
+        (let ((line-val (list)) (max-val 0))
 
             (loop for i from 0 to piece-columns do
                 (cond
@@ -219,7 +219,7 @@
             ;; Find index with maximum value in the list. This + piece's leftmost column will be the column-height
             (loop for i from 0 to (1- (list-length line-val)) do
                 (cond
-                    ((> (nth i line-val) max-val) (setf max-val (nth i line-val)) (setf max-line-val-index i))
+                    ((> (nth i line-val) max-val) (setf max-val (nth i line-val)))
                     (T t)))
         (setf column-height max-val))
 
