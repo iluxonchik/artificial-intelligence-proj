@@ -1,6 +1,8 @@
 ;;;; Grupo 49: Illya Gerasymchuk (78134), Nuno Silva (78454), Jorge Heleno (79042) ;;;;
 ;;;; Tetris source file
 
+
+
 ;;; Pieces
 (defconstant piece-i 'i)
 (defconstant piece-j 'j)
@@ -27,10 +29,8 @@
 (setf (gethash 3 *score*) 500)
 (setf (gethash 4 *score*) 800)
 
-
 ;;; piece to piece-conf hash table (populated at the end of the file)
 (defparameter *piece-confs* (make-hash-table))
-
 
 ;;; Acao [2.2.1]
 
@@ -75,7 +75,6 @@
                     (t t)))
             line-has-nil))
 
-
 (defun tabuleiro-preenche!(tab rowN colN)
     (if (and (and (< rowN (first (array-dimensions tab)))
     (< colN (nth 1 (array-dimensions tab))))
@@ -84,6 +83,7 @@
 
 (defun tabuleiro-topo-preenchido-p(tab)
     (tabuleiro-ha-elementos-na-linha tab 17))
+
 
 
 (defun tabuleiro-ha-elementos-na-linha(tab rowN)
@@ -225,6 +225,7 @@
 
         ;; TODO: put this in a separate helper function
         ;; Place piece on the tab
+        ;; NOTE: will override other pieces in case of conflict
         (loop for i from 0 to piece-lines do
             (let* (
                 (tab-line-index (+ column-height i)))
@@ -271,6 +272,7 @@
             (setf (estado-Tabuleiro state-copy) tab)
 
         state-copy)) ; return the updated state
+
 
 ;;; [2.2.2] Procuras
 
@@ -323,7 +325,64 @@
 
                     (t t)))))
 
+(defun procura-best(board pieces)
+    (return-from procura-best (procura-pp (make-problema :estado-inicial (make-estado :pontos 0 :pecas-por-colocar pieces :pecas-colocadas '() :Tabuleiro board )
+                                        :solucao #'solucao :accoes #'accoes
+                                        :resultado #'resultado :custo-caminho #'compute-score))))
+
+
+;;; Heuristic Functions
+
+(defun aggregateHeight(board)
+    (let ((height 0) (maxCol 10) (i 0))
+        (loop while (< i maxCol) do
+            (setf height (+ height (tabuleiro-altura-coluna board i)))
+            (setf i (1+ i)))
+        (return-from aggregateHeight height)))
+
+(defun completeLines(board)
+    (let ((numCompLines 0)
+          (maxLine 18)
+          (i 0))
+        (loop while (< i maxLine) do
+            (cond
+                ((tabuleiro-linha-completa-p board i) (setf numCompLines (1+ numCompLines) ) (setf i (1+ i)))
+                (t (setf i (1+ i)))))
+        (return-from completeLines numCompLines)))
+
+(defun numHolesCol(board col)
+    (let ((i 0) (holecount 0)(height (tabuleiro-altura-coluna board col)))
+            (loop while(< i height) do
+                (cond
+
+                  ((not (tabuleiro-preenchido-p board i col)) (setf holecount (1+ holecount)) (setf i (1+ i)))
+                  (t (setf i (1+ i)))))
+            (return-from numHolesCol holecount)))
+
+(defun numHoles(board)
+    (let ((i 0) (holeCount 0) (maxCol 10))
+        (loop while(< i maxCol) do
+            (setf holeCount (+ holeCount (numHolesCol board i)))
+            (setf i (1+ i)))
+        (return-from numHoles holeCount)))
+
+
+(defun bumpiness(board)
+    (let ((i 1) (bump 0) (maxCol 10))
+      (loop while(< i  maxCol) do
+        (setf bump (+ bump (abs (- (tabuleiro-altura-coluna board (1- i)) (tabuleiro-altura-coluna board  i) ))))
+        (setf i (+ 1 i)))
+      (return-from bumpiness bump)))
+
+(defun compute-score(state)
+    (return-from compute-score (+ (* 1 (aggregateHeight (estado-Tabuleiro state))) (* 1 (completeLines (estado-Tabuleiro state)))
+    (* 1 (numHoles (estado-Tabuleiro state))) (* 1 (bumpiness (estado-Tabuleiro state)))
+
+    ))
+)
+
 ;;; Utils
+
 (defun copy-array (arr)
     "Given an array, returns a copy of it"
     (let ((dims (array-dimensions arr)))
@@ -362,10 +421,12 @@
 
 ;;; Uncomment Line 1 AND comment line 2 (below) when submitting to Mooshak
 ;;; Uncomment Line 2 AND comment line 1 (below) when using locally
-(load "utils.fas")           ; line 1
-;;;(load "../libs/utils.lisp")     ; line 2
+;;;(load "utils.fas")           ; line 1
+(load "../libs/utils.lisp")     ; line 2
 
-;;; Possible piece configurations
+
+;;; TODO: this doesn't really belong here
+;;; Possible piece configurations (for *piece-confs* hash)
 (defconstant piece-i-confs (list peca-i0 peca-i1))
 (defconstant piece-l-confs (list peca-l0 peca-l1 peca-l2 peca-l3))
 (defconstant piece-j-confs (list peca-j0 peca-j1 peca-j2 peca-j3))
@@ -374,7 +435,7 @@
 (defconstant piece-z-confs (list peca-z0 peca-z1))
 (defconstant piece-t-confs (list peca-t0 peca-t1 peca-t2 peca-t3))
 
-;;; piece to piece-conf hash table
+;;; piece to piece-conf hash table (for accoes)
 (setf (gethash piece-i *piece-confs*) piece-i-confs)
 (setf (gethash piece-l *piece-confs*) piece-l-confs)
 (setf (gethash piece-j *piece-confs*) piece-j-confs)
