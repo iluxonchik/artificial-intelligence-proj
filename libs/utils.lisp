@@ -124,8 +124,7 @@
 ;;; os limites verticais do tabuleiro de jogo
 (defun desenha-linha-exterior ()
   (format T "+")
-  (dotimes (coluna 10)
-    (format T "-"))
+    (format T "0123456789")
   (format T "+"))
 
 ;;; desenha-linha-vazia: {} --> {}

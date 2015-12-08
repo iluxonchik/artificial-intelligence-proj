@@ -380,6 +380,107 @@
 
     ))
 )
+;;; Procuras [2.2.2]
+
+;; procura-A*: problema x heuristica -> lista acoes
+;; Funcao que recebe um problema e uma fx h, e faz A*.
+;; Devolve uma lista com as acoes que levam a' solucao encontrada.
+;;  heuristica: estado -> inteiro
+(defun procura-A* (problem heuristic)
+    (let* (
+            (curr-state (problema-estado-inicial problem))
+            (open (list curr-state)) ; open list initially contains the start state
+            (open-hash (make-hash-table :test #'equalp)) ; T if state is in open list
+            (closed (make-hash-table :test #'equalp)) ; T if state has benn closed
+            (parent-state (make-hash-table :test #'equalp)) ; parent of a state
+            (parent-action (make-hash-table :test #'equalp)) ; parent action of a state
+            (f (make-hash-table :test #'equalp)) ; f function of a state
+            (g (make-hash-table :test #'equalp)) ; g function of a state
+            ;(h (make-hash-table :test #'equalp)) ; h function of a state
+            (state-actions nil)
+            (child-state nil)
+            ; this does not work :(   \/
+            ;(solucao (problema-solucao problem)) ; funcao solucao do problema
+            ;(accoes (problema-accoes problem))   ; funcao accoes  do problema
+            ;(resultado (problema-resultado problem))  ; funcao resultado do problema
+            ;(custo (problema-custo-caminho problem))  ; funcao custo-caminho do problema
+            (temp-g 0)
+            (temp-f 0)
+            (temp-h (funcall heuristic curr-state))
+        )
+        ; initialize f and g for the initial state
+        (setf (gethash curr-state g) temp-g )
+        (setf (gethash curr-state f) (+ temp-g temp-h) )
+        (setf (gethash curr-state open-hash) t )
+
+        (loop ; while solution not found
+            (if (null open) (return-from procura-A* nil)) ; no solution found
+
+            ; sort list of open states according to their f value
+            (stable-sort open #'(lambda (x y)
+                ( < (gethash x f) (gethash y f)) ) ; sort ascending
+            )
+
+            (setf curr-state (first open)) ; the first state from queue
+;(format t "loop ~S~%" curr-state)
+
+            (if (funcall (problema-solucao problem) curr-state) ; if solution found
+                (let* (
+                        (solution-action-list (list))
+                        (action)
+                    )
+                    (loop  ; create list of actions leading to solution
+                        (setf action (gethash curr-state parent-action)) ; get parent action
+                        (if (null action) (return-from procura-A* solution-action-list)) ; if null, we're at the initial state
+
+                        (setf solution-action-list ; put the action at the begining of the list
+                            (append (list action) solution-action-list)
+                        )
+                        (setf curr-state (gethash curr-state parent-state)) ; get parent state
+                    )
+                )
+            )
+
+            (setf open (rest open)) ; remove element from queue
+            (setf (gethash curr-state open-hash) nil )
+
+            (setf state-actions (funcall (problema-accoes problem) curr-state)) ; gen possible actions
+            (dolist (a state-actions) ; foreach action a in state-actions
+                (setf child-state (funcall (problema-resultado problem) curr-state a)) ; apply action to state
+                (setf temp-g (funcall (problema-custo-caminho problem) child-state)) ; calculate g
+                (setf temp-h (funcall heuristic child-state)) ; calculate h
+                (setf temp-f (+ temp-g temp-h) ) ; calculate f
+
+                (if (or (not (gethash child-state closed)) (< temp-f (gethash child-state f))) ; if (not already visited) or (visited but better)
+                    (progn
+                    (if (or (not (gethash child-state open-hash)) (< temp-f (gethash child-state f))) ; if (not already in open list) or (open but better)
+                        (progn
+                            (if (not (gethash child-state open-hash))
+                                (setf open (append (list child-state) open)) ; append to beggining of list.
+                            )
+                            (setf (gethash child-state open-hash) t )
+                            ; /\ Como usamos stable sort, se dois estados tiverem
+                            ;    f igual vai ser selecionado o ultimo a entrar, ou seja,
+                            ;    o que esta' mais perto do inicio da lista.
+
+                            (setf (gethash child-state parent-state) curr-state) ; register parent state
+                            (setf (gethash child-state parent-action) a) ; register parent action
+
+                            (setf (gethash child-state g) temp-g) ; store g
+
+                            ;(setf (gethash child-state h) temp-h) ; store h
+
+                            ; store f
+                            (setf (gethash child-state f) temp-f )
+                        )
+                    )
+                ))
+            )
+
+            (setf (gethash curr-state closed) t) ; mark state as visited
+        )
+    )
+)
 
 ;;; Utils
 
