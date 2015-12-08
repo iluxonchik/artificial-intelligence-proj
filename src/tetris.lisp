@@ -375,7 +375,7 @@
       (return-from bumpiness bump)))
 
 (defun compute-score(state)
-    (return-from calculate-worth (+ (* 1 (aggregateHeight (estado-Tabuleiro state))) (* 1 (completeLines (estado-Tabuleiro state)))
+    (return-from compute-score (+ (* 1 (aggregateHeight (estado-Tabuleiro state))) (* 1 (completeLines (estado-Tabuleiro state)))
     (* 1 (numHoles (estado-Tabuleiro state))) (* 1 (bumpiness (estado-Tabuleiro state)))
 
     ))
